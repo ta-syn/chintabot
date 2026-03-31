@@ -63,14 +63,22 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
         body: JSON.stringify({
           messages: msgs,
           questionCount,
+          confidence,
           category: selectedCategory,
           difficulty 
         }),
       });
 
-      if (resp.status === 429) {
-        setError({ message: "একটু ধীরে! ৩০ সেকেন্ড অপেক্ষা করুন ⏳", type: "warning", duration: 30000 });
-        setTimeout(() => fetchQuestion(msgs, true), 30000);
+      if (!resp.ok) {
+        if (resp.status === 429) {
+          setError({ message: "একটু ধীরে! ৩০ সেকেন্ড অপেক্ষা করুন ⏳", type: "warning", duration: 30000 });
+          setTimeout(() => fetchQuestion(msgs, true), 30000);
+          return;
+        }
+        
+        const errorData = await resp.json().catch(() => ({}));
+        setError({ message: errorData.message || "সার্ভার সমস্যা! একটু পর চেষ্টা করুন।", type: "error" });
+        setGenieState('sad');
         return;
       }
 
@@ -81,12 +89,9 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
         return;
       }
       
-      if (data.type === 'question' || data.type === 'guess' || data.type === 'unknown') {
-        jsonFailureCount.current = 0; // Reset on valid type
-      }
-
-      if (data.error && data.message) {
-        setError({ message: data.message, type: "error" });
+      if (data.error) {
+        setError({ message: data.message || "AI কোনো উত্তর দিল না। আবার চেষ্টা করুন।", type: "error" });
+        setGenieState('sad');
         return;
       }
 
