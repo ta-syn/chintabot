@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://chintabot.vercel.app/sitemap.xml

@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🧞 ChintaBot — মনের চরিত্র চিনে ফেলি
 
-## Getting Started
+**ChintaBot** হলো বাংলাদেশের প্রথম AI-চালিত বাংলা ক্যারেক্টার গেসিং গেম। আপনি মনে মনে যেকোনো জনপ্রিয় চরিত্র বা ব্যক্তিকে ভাববেন, আর জিনী তার জাদুকরী বুদ্ধিমত্তা দিয়ে মাত্র ২০টি বা তার কম প্রশ্নে সেটি খুঁজে বের করবে!
 
-First, run the development server:
+![ChintaBot Preview](public/og-image.png)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ মূল বৈশিষ্ট্যসমূহ (Features)
+- 🧞 **সিঙ্গেল প্লেয়ার মোড:** আমাদের জাদুকরী জিনী (Genie) আপনার মন পড়ার চেষ্টা করবে।
+- 👥 **মাল্টিপ্লেয়ার মোড:** বন্ধুদের সাথে রুম কোড শেয়ার করে সরাসরি প্রতিযোগিতায় অংশ নিন।
+- 🌙 **ডার্ক ও লাইট মোড:** আপনার পছন্দমতো থিম বেছে নিন।
+- 🏆 **অ্যাচিভমেন্ট সিস্টেম:** গেম খেলে বিভিন্ন পদক ও সম্মাননা আনলক করুন।
+- 📊 **পরিসংখ্যান ট্র্যাকিং:** আপনার সব খেলার রেকর্ড ও জয়ের হার দেখুন।
+- 🇧🇩 **বাংলাদেশি কনটেক্সট:** সাকিব আল হাসান থেকে শুরু করে হুমায়ূন আহমেদের হিমু — সব বাংলাদেশি চরিত্র চিনতে আমাদের জিনী ওস্তাদ!
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠 প্রযুক্তি (Tech Stack)
+- **Framework:** Next.js (App Router)
+- **AI Engine:** Google Gemini 2.0 Flash
+- **Styling:** Vanilla CSS & Tailwind (Custom)
+- **State Management:** React Context & Hooks
+- **Persistence:** LocalStorage & SessionStorage
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 🚀 চালানোর নিয়মসমূহ (Setup)
+১. রিপোজিটরি ক্লোন করুন:
+   ```bash
+   git clone https://github.com/your-username/chintabot.git
+   cd chintabot
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+২. ডিপেন্ডেন্সি ইনস্টল করুন:
+   ```bash
+   npm install
+   ```
 
-## Learn More
+৩. এনভায়রনমেন্ট ভেরিয়েবল সেটআপ করুন:
+   [Google AI Studio](https://aistudio.google.com/) থেকে একটি API Key নিন এবং মূল ডিরেক্টরিতে `.env.local` ফাইলে এটি যোগ করুন:
+   ```env
+   GEMINI_API_KEY=আপনার_এপিআই_কি
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+৪. ডেভেলপমেন্ট সার্ভার চালু করুন:
+   ```bash
+   npm run dev
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+৫. ব্রাউজারে `http://localhost:3000` এ গিয়ে গেমটি উপভোগ করুন!
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🎮 গেম কন্ট্রোল (Desktop)
+- `1` বা `Y`: হ্যাঁ
+- `2` বা `N`: না
+- `3` বা `M`: হয়তো
+- `R`: রিস্টার্ট গেম
+- `Esc`: হোম স্ক্রিনে ফেরা
+- `Ctrl + Shift + D`: ডিবাগ প্যানেল টগল (ডেভেলপারদের জন্য)
 
-## Deploy on Vercel
+## 📄 লাইসেন্স
+এই প্রজেক্টটি MIT লাইসেন্সের অধীনে প্রকাশিত।
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+**ChintaBot** — আপনার বুদ্ধিমত্তার সাথে এআই-এর মেলবন্ধন। মনের জাদুকে আলিঙ্গন করুন! 🧞‍♂️✨
