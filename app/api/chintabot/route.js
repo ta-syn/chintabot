@@ -39,28 +39,32 @@ export async function POST(request) {
     }
 
     const genAI = new GoogleGenerativeAI(geminiApiKey);
-    const geminiModels = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-8b"];
+    const geminiModels = [
+        "gemini-2.0-flash",
+        "gemini-2.5-flash",
+        "gemini-flash-latest",
+        "gemini-1.5-flash",
+    ];
 
     let aiText = "";
     let lastError = "";
 
-    // Consolidate prompt for maximum compatibility
-    let consolidatedPrompt = `SYSTEM: ${systemInstruction}\n\n`;
-    history.forEach(h => {
-        consolidatedPrompt += `${h.role === 'model' ? 'ASSISTANT' : 'USER'}: ${h.parts[0].text}\n\n`;
-    });
-    consolidatedPrompt += `USER: ${lastUserMsg.content}`;
-
     for (const modelName of geminiModels) {
       try {
-        console.log(`Trying Gemini model: ${modelName}`);
-        const model = genAI.getGenerativeModel({ model: modelName });
-        const result = await model.generateContent(consolidatedPrompt);
-        const response = await result.response;
-        aiText = response.text();
+        console.log(`Trying model: ${modelName}...`);
+
+        const model = genAI.getGenerativeModel({
+            model: modelName,
+            systemInstruction: systemInstruction,
+        });
+
+        const chat = model.startChat({ history });
+        const result = await chat.sendMessage(lastUserMsg.content);
+        aiText = result.response.text();
+        
         if (aiText) break;
       } catch (err) {
-        console.warn(`Gemini model ${modelName} fail:`, err.message);
+        console.warn(`❌ Model ${modelName} failed:`, err.message);
         lastError = err.message;
         continue;
       }
