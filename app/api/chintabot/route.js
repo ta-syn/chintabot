@@ -8,9 +8,8 @@ export async function POST(request) {
     const { messages: rawMessages = [], questionCount = 0, category = 'all', confidence = 0 } = body;
 
     const geminiApiKey = process.env.GEMINI_API_KEY;
-    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
 
-    if (!geminiApiKey && (!openRouterApiKey || openRouterApiKey === "your_openrouter_api_key_here")) {
+    if (!geminiApiKey || geminiApiKey === "your_gemini_api_key_here") {
        return NextResponse.json({ 
         error: "NO_API_KEY", 
         text: 'এপিআই কী খুঁজে পাওয়া যায়নি', 
@@ -19,85 +18,48 @@ export async function POST(request) {
     }
 
     const { messages: promptMessages } = buildMessages(rawMessages, category, confidence);
-    let aiText = "";
-
-    // Strategy 1: Try OpenRouter (if key exists)
-    if (openRouterApiKey && openRouterApiKey !== "your_openrouter_api_key_here") {
-      const openRouterModels = [
-        "deepseek/deepseek-chat", // DeepSeek V3
-        "qwen/qwen3.6-plus-preview:free",
-        "google/gemma-3-27b-it:free",
-        "meta-llama/llama-3.3-70b-instruct:free",
-        "google/gemma-3-4b-it:free",
-        "qwen/qwen3-coder:free",
-        "liquid/lfm-2.5-1.2b-instruct:free",
-        "nvidia/nemotron-3-nano-30b-a3b:free",
-        "arcee-ai/trinity-mini:free",
-        "meta-llama/llama-3.2-1b-instruct:free"
-      ];
-
-      for (const modelName of openRouterModels) {
-        try {
-          console.log(`[OpenRouter] Trying model: ${modelName}`);
-          const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${openRouterApiKey}`,
-              "HTTP-Referer": "http://localhost:3000",
-              "X-Title": "ChintaBot",
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              model: modelName,
-              messages: promptMessages.map(m => ({ role: m.role, content: m.content })),
-              max_tokens: 512,
-              temperature: 0.1
-            })
-          });
-
-          const data = await response.json().catch(() => ({}));
-
-          if (response.ok) {
-            aiText = data.choices?.[0]?.message?.content || "";
-            if (aiText) {
-              console.log(`[OpenRouter] Success! Model: ${modelName}`);
-              console.log(`[OpenRouter] Full AI Output:`, aiText);
-              break;
-            }
-          } else {
-            console.warn(`[OpenRouter] Model ${modelName} failed. Status: ${response.status}. Error:`, data.error?.message || "Unknown");
-          }
-        } catch (err) {
-          console.error(`[OpenRouter] Error for ${modelName}:`, err.message);
-        }
-      }
+    
+    // Extract system prompt and history
+    const systemMsg = promptMessages.find(m => m.role === 'system');
+    const systemInstruction = systemMsg ? systemMsg.content : "";
+    
+    // Prepare history for Gemini (excluding system and the very last user message)
+    // Gemini chat history should be pairs of user/model
+    const history = [];
+    const chatMessages = promptMessages.filter(m => m.role !== 'system');
+    const lastUserMsg = chatMessages[chatMessages.length - 1];
+    
+    // We need to convert promptMessages to Gemini's { role: 'user'|'model', parts: [{ text: '' }] } format
+    for (let i = 0; i < chatMessages.length - 1; i++) {
+        const msg = chatMessages[i];
+        history.push({
+            role: msg.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: msg.content }]
+        });
     }
 
-    // Strategy 2: Fallback to direct Gemini
-    if (!aiText && geminiApiKey && geminiApiKey !== "your_gemini_api_key_here") {
-      const genAI = new GoogleGenerativeAI(geminiApiKey);
-      const geminiModels = ["gemini-1.5-flash-latest", "gemini-2.0-flash-exp", "gemini-1.5-flash"];
+    const genAI = new GoogleGenerativeAI(geminiApiKey);
+    const geminiModels = ["gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-3-flash-preview", "gemini-2.5-flash", "gemini-flash-latest"];
 
-      let consolidatedPrompt = "";
-      promptMessages.forEach(msg => {
-        const role = msg.role === 'system' ? '### SYSTEM INSTRUCTIONS' : 
-                     msg.role === 'assistant' ? '### CHINTABOT' : '### USER';
-        consolidatedPrompt += `${role}:\n${msg.content}\n\n`;
-      });
-      consolidatedPrompt += `### CURRENT TASK:\nএখন ${questionCount + 1} নম্বর প্রশ্নটি করো। সরাসরি JSON ফরম্যাটে উত্তর দাও।`;
+    let aiText = "";
 
-      for (const modelName of geminiModels) {
-        try {
-          console.log(`Trying Gemini model: ${modelName}`);
-          const model = genAI.getGenerativeModel({ model: modelName });
-          const result = await model.generateContent(consolidatedPrompt);
-          const response = await result.response;
-          aiText = response.text();
-          if (aiText) break;
-        } catch (err) {
-          console.warn(`Gemini model ${modelName} fail:`, err.message);
-          if (err.message.includes("429") || err.message.includes("Quota")) break;
-        }
+    for (const modelName of geminiModels) {
+      try {
+        console.log(`Trying Gemini model: ${modelName}`);
+        const model = genAI.getGenerativeModel({ 
+            model: modelName,
+            systemInstruction: systemInstruction 
+        });
+        
+        const chat = model.startChat({ history });
+        const result = await chat.sendMessage(lastUserMsg.content);
+        const response = await result.response;
+        aiText = response.text();
+        
+        if (aiText) break;
+      } catch (err) {
+        console.warn(`Gemini model ${modelName} fail:`, err.message);
+        continue;
       }
     }
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, memo, useCallback } from 'react';
-import { Frown, Share2, Check, MessageCircle, Facebook } from 'lucide-react';
+import { Frown, Share2, Check, MessageCircle, Facebook, RotateCcw } from 'lucide-react';
 import useTheme from '../site_hooks/useTheme';
 import { updateLastGame } from '../lib/gameStats';
 
