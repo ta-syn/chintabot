@@ -47,12 +47,12 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
   
   const retryCount = useRef(0);
   const jsonFailureCount = useRef(0);
-  const isLoadingRef = useRef(false);
+  const [isLoading, setIsLoading] = useState(false);
   const gameStartedRef = useRef(false);
 
   const fetchQuestion = useCallback(async (msgs, isRetry = false) => {
-    if (isLoadingRef.current && !isRetry) return;
-    isLoadingRef.current = true;
+    if (isLoading && !isRetry) return;
+    setIsLoading(true);
     setGenieState('thinking');
     playThinking();
     
@@ -173,7 +173,7 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
         console.error("GameBoard Fetch Error:", err);
       }
     } finally {
-      isLoadingRef.current = false;
+      setIsLoading(false);
       stopThinking();
     }
   }, [questionCount, selectedCategory, difficulty]);
@@ -190,7 +190,7 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
   }, [fetchQuestion, selectedCategory]);
 
   const handleAnswer = useCallback((answer) => {
-    if (isLoadingRef.current || isAnimating || gameState !== 'playing') return;
+    if (isLoading || isAnimating || gameState !== 'playing') return;
     
     playAnswer(answer);
     setLastAnswer(answer);
@@ -199,7 +199,7 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
     
     // Defer for animation
     setTimeout(() => fetchQuestion(updatedMessages), 300);
-  }, [messages, isAnimating, gameState, fetchQuestion]);
+  }, [messages, isAnimating, gameState, fetchQuestion, isLoading]);
 
   // Welcome message effect
   useEffect(() => {
@@ -282,7 +282,7 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
   }, []);
 
   const undoLastAction = useCallback(() => {
-    if (isLoadingRef.current || isAnimating || messages.length < 2 || gameState !== 'playing') {
+    if (isLoading || isAnimating || messages.length < 2 || gameState !== 'playing') {
       if (messages.length < 2) {
          setError({ message: "পিছিয়ে যাওয়ার মতো আর কিছু নেই!", type: "info" });
       }
@@ -319,7 +319,7 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
       confidence: Math.max(0, confidence - 5),
       category: selectedCategory
     }));
-  }, [messages, questionCount, confidence, selectedCategory, isAnimating, gameState]);
+  }, [messages, questionCount, confidence, selectedCategory, isAnimating, gameState, isLoading]);
 
   return (
     <div className={`min-h-screen flex flex-col p-4 md:p-8 animate-fadeIn ${isDark ? 'bg-deep-800' : 'bg-[#fcf8ff]'}`}>
@@ -330,10 +330,10 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
         <div className="flex items-center gap-2">
           <button 
             onClick={undoLastAction}
-            disabled={messages.length < 2 || isLoadingRef.current || isAnimating}
+            disabled={messages.length < 2 || isLoading || isAnimating}
             className={`p-3 glass rounded-xl shadow-sm transition-all flex items-center gap-2 group ${messages.length < 2 ? 'opacity-20 grayscale cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
           >
-            <RotateCcw className={`w-5 h-5 transition-transform ${!isLoadingRef.current && !isAnimating ? 'group-hover:-rotate-45' : ''}`} />
+            <RotateCcw className={`w-5 h-5 transition-transform ${!isLoading && !isAnimating ? 'group-hover:-rotate-45' : ''}`} />
             <span className="hidden md:inline text-xs font-bold bengali-font">পিছিয়ে যান</span>
           </button>
           <SoundToggle />
@@ -357,7 +357,7 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
               question={currentQuestion} 
               questionNumber={questionCount}
               category={selectedCategory}
-              isLoading={isLoadingRef.current}
+              isLoading={isLoading}
             />
           </div>
 
@@ -371,7 +371,7 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
           ) : (
             <AnswerButtons 
               onAnswer={handleAnswer} 
-              isLoading={isLoadingRef.current || isAnimating}
+              isLoading={isLoading || isAnimating}
               lastAnswer={lastAnswer}
             />
           )}

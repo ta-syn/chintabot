@@ -49,6 +49,9 @@ export async function POST(request) {
     let aiText = "";
     let lastError = "";
 
+    // ✅ Delay helper to handle rate limits
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
     for (const modelName of geminiModels) {
       try {
         console.log(`Trying model: ${modelName}...`);
@@ -66,11 +69,28 @@ export async function POST(request) {
       } catch (err) {
         console.warn(`❌ Model ${modelName} failed:`, err.message);
         lastError = err.message;
+        
+        // Handle Rate Limit (429) specifically - Wait 3s and try next model
+        if (err.message.includes('429') || err.message.includes('quota')) {
+           console.warn(`⏳ Rate limited on ${modelName}, waiting 2 seconds...`);
+           await sleep(2000); // 2 seconds delay to stay within Vercel's 10s limit
+           continue; 
+        }
+        
         continue;
       }
     }
 
     if (!aiText) {
+      // If after all retries it still fails with rate limit
+      if (lastError.includes('429') || lastError.includes('quota')) {
+        return NextResponse.json({ 
+            error: true, 
+            message: 'গুগল এপিআই-এর ফ্রি লিমিট শেষ হয়ে গেছে। দয়া করে ৩০ সেকেন্ড অপেক্ষা করে আবার চেষ্টা করুন।', 
+            type: 'rate_limit'
+          }, { status: 429 });
+      }
+
       return NextResponse.json({ 
         error: true, 
         message: `সবগুলো এপিআই ফেইল করেছে। শেষ এরর: ${lastError}`, 
