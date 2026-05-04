@@ -39,9 +39,10 @@ export async function POST(request) {
     }
 
     const genAI = new GoogleGenerativeAI(geminiApiKey);
-    const geminiModels = ["gemini-flash-latest", "gemini-2.0-flash", "gemini-1.5-flash"];
+    const geminiModels = ["gemini-1.5-flash-8b", "gemini-flash-latest", "gemini-1.5-flash"];
 
     let aiText = "";
+    let lastError = "";
 
     for (const modelName of geminiModels) {
       try {
@@ -59,6 +60,7 @@ export async function POST(request) {
         if (aiText) break;
       } catch (err) {
         console.warn(`Gemini model ${modelName} fail:`, err.message);
+        lastError = err.message;
         continue;
       }
     }
@@ -66,7 +68,7 @@ export async function POST(request) {
     if (!aiText) {
       return NextResponse.json({ 
         error: true, 
-        message: 'সবগুলো এপিআই ফেইল করেছে। আপনার ওপেন-রাউটার বা জেমিনি কী চেক করুন।', 
+        message: `সবগুলো এপিআই ফেইল করেছে। শেষ এরর: ${lastError}`, 
         type: 'api_error'
       }, { status: 503 });
     }
