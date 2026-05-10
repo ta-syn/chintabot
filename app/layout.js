@@ -3,6 +3,8 @@ import { ThemeProvider } from "../site_context/ThemeContext";
 import CustomCursor from "../site_components/CustomCursor";
 import GlobalControls from "../site_components/GlobalControls";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const hindSiliguri = Hind_Siliguri({
   subsets: ['bengali'],
@@ -50,8 +52,6 @@ export const viewport = {
   themeColor: "#2d0a5e",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 export default function RootLayout({ children }) {
@@ -65,6 +65,8 @@ export default function RootLayout({ children }) {
             {children}
           </div>
         </ThemeProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

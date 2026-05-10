@@ -2,6 +2,31 @@ import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { buildMessages, parseGeminiResponse } from '../../../lib/prompt.js';
 
+// Simple in-memory rate limiting
+const rateLimitMap = new Map();
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const windowMs = 60 * 1000; // 1 minute
+  const maxRequests = 20; // Normal chat usage
+  
+  if (!rateLimitMap.has(ip)) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
+    return false;
+  }
+  
+  const record = rateLimitMap.get(ip);
+  if (now > record.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
+    return false;
+  }
+  
+  record.count += 1;
+  return record.count > maxRequests;
+}
+
+// Simple input sanitizer
+const sanitize = (str) => typeof str === 'string' ? str.trim().substring(0, 1000).replace(/[<>]/g, '') : str;
+
 // ✅ Model Definitions
 const AI_MODELS = [
   // Primary: Gemini Models (Fast & Reliable)
@@ -19,8 +44,23 @@ const AI_MODELS = [
 
 export async function POST(request) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    if (checkRateLimit(ip)) {
+      return NextResponse.json({ 
+        error: true, 
+        message: "অতিরিক্ত রিকোয়েস্ট পাঠানো হচ্ছে। দয়া করে অপেক্ষা করুন।", 
+        type: 'api_error' 
+      }, { status: 429 });
+    }
+
     const body = await request.json();
     const { messages: rawMessages = [], questionCount = 0, category = 'all', confidence = 0 } = body;
+
+    // Sanitize user messages to prevent injection
+    const sanitizedMessages = rawMessages.map(msg => ({
+      ...msg,
+      content: sanitize(msg.content)
+    }));
 
     const geminiApiKey = process.env.GEMINI_API_KEY;
     const openRouterApiKey = process.env.OPENROUTER_API_KEY || geminiApiKey; // Fallback to gemini key if user used it there (sometimes they are the same in proxies)
@@ -33,7 +73,7 @@ export async function POST(request) {
       }, { status: 500 });
     }
 
-    const { messages: promptMessages } = buildMessages(rawMessages, category, confidence);
+    const { messages: promptMessages } = buildMessages(sanitizedMessages, category, confidence);
     
     // Extract system prompt and history
     const systemMsg = promptMessages.find(m => m.role === 'system');

@@ -2,11 +2,42 @@ import { NextResponse } from 'next/server';
 import connectToDatabase from '../../../lib/mongodb';
 import Room from '../../../models/Room';
 
+// Simple in-memory rate limiting
+const rateLimitMap = new Map();
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const windowMs = 60 * 1000; // 1 minute
+  const maxRequests = 120; // Allow enough for polling (2 per second)
+  
+  if (!rateLimitMap.has(ip)) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
+    return false;
+  }
+  
+  const record = rateLimitMap.get(ip);
+  if (now > record.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
+    return false;
+  }
+  
+  record.count += 1;
+  return record.count > maxRequests;
+}
+
+// Simple input sanitizer
+const sanitize = (str) => typeof str === 'string' ? str.trim().substring(0, 50).replace(/[<>]/g, '') : str;
+
+
 export async function GET(request) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    if (checkRateLimit(ip)) {
+      return NextResponse.json({ error: "অতিরিক্ত রিকোয়েস্ট পাঠানো হচ্ছে। দয়া করে অপেক্ষা করুন।" }, { status: 429 });
+    }
+
     const { searchParams } = new URL(request.url);
     const roomCode = searchParams.get('roomCode');
-    const playerName = searchParams.get('playerName');
+    const playerName = sanitize(searchParams.get('playerName'));
 
     if (!roomCode) {
       return NextResponse.json({ error: "রুম কোড প্রয়োজন" }, { status: 400 });
@@ -44,8 +75,16 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    if (checkRateLimit(ip)) {
+      return NextResponse.json({ error: "অতিরিক্ত রিকোয়েস্ট পাঠানো হচ্ছে। দয়া করে অপেক্ষা করুন।" }, { status: 429 });
+    }
+
     const body = await request.json();
-    const { action, playerName, roomCode, secretCharacter, updateData } = body;
+    let { action, playerName, roomCode, secretCharacter, updateData } = body;
+    
+    playerName = sanitize(playerName);
+    secretCharacter = sanitize(secretCharacter);
 
     try {
       await connectToDatabase();

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, memo } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
-import { isMuted, toggleMute, playClick } from '../lib/sounds';
+import { isMuted, toggleMute } from '../lib/sounds';
 
 function SoundToggle() {
   const [muted, setMuted] = useState(false);

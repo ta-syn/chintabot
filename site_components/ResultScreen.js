@@ -1,9 +1,16 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, memo, useCallback } from 'react';
-import { Frown, Share2, Check, MessageCircle, Facebook, RotateCcw } from 'lucide-react';
+import React, { useState, useEffect, useMemo, memo } from 'react';
+import { MessageCircle, RotateCcw, Frown } from 'lucide-react';
+import PropTypes from 'prop-types';
 import useTheme from '../site_hooks/useTheme';
 import { updateLastGame } from '../lib/gameStats';
+
+const FacebookIcon = ({ className }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" />
+  </svg>
+);
 
 function ResultScreen({ 
   result, 
@@ -14,7 +21,6 @@ function ResultScreen({
 }) {
   const { isDark } = useTheme();
   const [stage, setStage] = useState(0);
-  const [copied, setCopied] = useState(false);
   const [userInputCharacter, setUserInputCharacter] = useState("");
 
   const isSuccess = result?.type === 'guess' && result?.correct !== false && stage !== -1;
@@ -48,25 +54,6 @@ function ResultScreen({
     }
   }, [result]);
 
-  const handleShare = useCallback(async () => {
-    const shareData = {
-      title: 'ChintaBot — আমার চরিত্র চিনে ফেলেছে!',
-      text: `চিনতাবট আমার মনের চরিত্র ${result?.banglaName || result?.character} চিনে ফেলেছে মাত্র ${questionCount}টি প্রশ্নে! আপনিও খেলুন:`,
-      url: typeof window !== 'undefined' ? window.location.origin : ''
-    };
-
-    try {
-      if (typeof navigator !== 'undefined' && navigator.share) {
-        await navigator.share(shareData);
-      } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
-        await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      }
-    } catch (err) {
-      console.error('Share failed:', err);
-    }
-  }, [result, questionCount]);
 
   const confettiItems = useMemo(() => {
     if (stage < 10 || !isSuccess) return [];
@@ -130,7 +117,7 @@ function ResultScreen({
       <div className="relative z-20 w-full max-w-xl px-4">
         {stage >= 5 && (
           <div className={`
-            w-full p-10 md:p-14 rounded-[3.5rem] border-2 transition-all duration-1000 accelerate translate-z-0 overflow-hidden relative
+            w-full p-10 md:p-14 rounded-[3rem] border-2 transition-all duration-1000 accelerate translate-z-0 overflow-hidden relative
             ${isSuccess ? 'border-amber-400/30 shadow-[0_40px_80px_rgba(234,179,8,0.2)]' : 'border-red-500/20'}
             ${isDark ? 'glass bg-black/60 backdrop-blur-3xl' : 'bg-white shadow-2xl'}
             animate-slam
@@ -193,7 +180,7 @@ function ResultScreen({
                              <MessageCircle className="w-6 h-6 fill-current" /> WhatsApp
                           </button>
                           <button onClick={shareFacebook} className="py-5 bg-[#1877F2] text-white rounded-[2rem] font-black text-sm md:text-base flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all hover:brightness-110">
-                             <Facebook className="w-6 h-6 fill-current" /> Facebook
+                             <FacebookIcon className="w-6 h-6 fill-current" /> Facebook
                           </button>
                         </div>
 
@@ -227,6 +214,7 @@ function ResultScreen({
                       value={userInputCharacter}
                       onChange={(e) => setUserInputCharacter(e.target.value)}
                       placeholder="সঠিক চরিত্রের নাম..."
+                      aria-label="সঠিক চরিত্রের নাম"
                       className={`w-full p-6 rounded-[1.5rem] border-2 transition-all text-center font-black text-xl bengali-font outline-none ${isDark ? 'bg-black/40 border-white/10 focus:border-royal-500 focus:bg-black/60' : 'bg-gray-50 border-gray-100 focus:border-royal-500 focus:bg-white focus:shadow-inner'}`}
                     />
                     <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-royal-500 scale-x-0 group-focus-within:scale-x-100 transition-transform rounded-full" />
@@ -248,16 +236,20 @@ function ResultScreen({
           </div>
         )}
       </div>
-
-
-      <style jsx global>{`
-        @keyframes confettiFall {
-          0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-          100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-      `}</style>
     </div>
   );
 }
+
+ResultScreen.propTypes = {
+  result: PropTypes.shape({
+    name: PropTypes.string,
+    details: PropTypes.string,
+    confidence: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  }),
+  questionCount: PropTypes.number,
+  onRestart: PropTypes.func.isRequired,
+  onResponse: PropTypes.func.isRequired,
+  isMultiplayer: PropTypes.bool
+};
 
 export default memo(ResultScreen);

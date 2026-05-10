@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, memo } from 'react';
 import { Quote } from 'lucide-react';
+import PropTypes from 'prop-types';
 import useTheme from '../site_hooks/useTheme';
 
 function QuestionCard({ 
@@ -107,5 +108,13 @@ function QuestionCard({
 
   );
 }
+
+QuestionCard.propTypes = {
+  question: PropTypes.string,
+  questionNumber: PropTypes.number,
+  category: PropTypes.string,
+  isLoading: PropTypes.bool,
+  isAnimating: PropTypes.bool
+};
 
 export default memo(QuestionCard);

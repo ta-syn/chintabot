@@ -2,6 +2,7 @@
 
 import React, { memo } from 'react';
 import { Target, Zap } from 'lucide-react';
+import PropTypes from 'prop-types';
 import useTheme from '../site_hooks/useTheme';
 
 function ProgressBar({ questionCount, maxQuestions = 20, confidence = 0 }) {
@@ -71,5 +72,11 @@ function ProgressBar({ questionCount, maxQuestions = 20, confidence = 0 }) {
 
   );
 }
+
+ProgressBar.propTypes = {
+  questionCount: PropTypes.number.isRequired,
+  maxQuestions: PropTypes.number,
+  confidence: PropTypes.number
+};
 
 export default memo(ProgressBar);

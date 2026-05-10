@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, memo } from 'react';
 import useTheme from '../site_hooks/useTheme';
+import PropTypes from 'prop-types';
 
 function Genie({ state = 'idle' }) {
   const { isDark } = useTheme();
@@ -129,5 +130,9 @@ function Genie({ state = 'idle' }) {
     </div>
   );
 }
+
+Genie.propTypes = {
+  state: PropTypes.oneOf(['idle', 'thinking', 'excited', 'asking', 'celebrating', 'sad'])
+};
 
 export default memo(Genie);

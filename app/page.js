@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import useTheme from '../site_hooks/useTheme';
+import ErrorBoundary from '../site_components/ErrorBoundary';
 
 // Heavy components - Dynamic Import
 const StartScreen = dynamic(() => import('../site_components/StartScreen'), { ssr: false });
@@ -31,15 +32,31 @@ export default function Home() {
   const [welcomeMessage, setWelcomeMessage] = useState(null);
 
   useEffect(() => {
-    // Check for returning user
+    let initialAppState = "start";
+    let initialCategory = "all";
+    let initialDiff = { maxQuestions: 20, hints: 1 };
+
+    // Check for saved state and returning user
     try {
       if (typeof window !== 'undefined') {
+        // Restore app state
+        const savedState = localStorage.getItem('chintabot_app_state');
+        if (savedState && ["start", "categorySelect", "playing", "multilobby", "multiplaying"].includes(savedState)) {
+          initialAppState = savedState;
+        }
+
+        const savedCategory = localStorage.getItem('chintabot_selected_category');
+        if (savedCategory) initialCategory = savedCategory;
+
+        const savedDiff = localStorage.getItem('chintabot_difficulty');
+        if (savedDiff) initialDiff = JSON.parse(savedDiff);
+
+        // Stats logic
         const stats = localStorage.getItem('chintabot_stats');
         if (stats) {
           const parsed = JSON.parse(stats);
           if (parsed && Array.isArray(parsed) && parsed.length > 0) {
             const lastGame = parsed[0];
-            // Use timeout to avoid synchronous setState warning
             setTimeout(() => {
               setWelcomeMessage(`আবার স্বাগতম! আপনার শেষ চরিত্রটি ছিল ${lastGame.character}। জিনী আপনার জন্য নতুন চ্যালেঞ্জ নিয়ে তৈরি! ✨`);
             }, 0);
@@ -47,13 +64,15 @@ export default function Home() {
         }
       }
     } catch (e) {
-      console.warn("Storage check failed");
+      console.warn("State restoration failed", e);
     }
 
     // Initial loading sequence
     const timer = setTimeout(() => {
       setIsAppReady(true);
-      setAppState("start");
+      setAppState(initialAppState);
+      setSelectedCategory(initialCategory);
+      setDifficulty(initialDiff);
     }, 2000);
 
     const tipTimer = setInterval(() => {
@@ -66,9 +85,25 @@ export default function Home() {
     };
   }, []);
 
+  // Persist state changes
+  useEffect(() => {
+    if (isAppReady && appState !== "loading") {
+      try {
+        localStorage.setItem('chintabot_app_state', appState);
+        localStorage.setItem('chintabot_selected_category', selectedCategory);
+        localStorage.setItem('chintabot_difficulty', JSON.stringify(difficulty));
+      } catch (e) {
+        console.warn("State saving failed", e);
+      }
+    }
+  }, [appState, selectedCategory, difficulty, isAppReady]);
+
   const handleStartSingle = useCallback(() => setAppState("categorySelect"), []);
   const handleStartMultiplayer = useCallback(() => setAppState("multilobby"), []);
-  const handleBackToStart = useCallback(() => setAppState("start"), []);
+  const handleBackToStart = useCallback(() => {
+    setAppState("start");
+    localStorage.removeItem('chintabot_app_state'); // Clear on explicit back to home
+  }, []);
   
   const handleCategorySelect = useCallback((data) => {
     setSelectedCategory(data.category);
@@ -152,7 +187,8 @@ export default function Home() {
 
   return (
     <main className={`min-h-screen relative overflow-hidden ${isDark ? 'bg-deep-800' : 'bg-[#fcf8ff]'}`}>
-      <div className="relative z-10 w-full min-h-screen">
+      <ErrorBoundary>
+        <div className="relative z-10 w-full min-h-screen">
         {appState === "start" && (
           <StartScreen 
             welcomeMessage={welcomeMessage}
@@ -186,6 +222,7 @@ export default function Home() {
           />
         )}
       </div>
+      </ErrorBoundary>
     </main>
   );
 }

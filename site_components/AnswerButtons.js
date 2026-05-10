@@ -2,7 +2,7 @@
 
 import React, { useState, memo, useRef, useCallback } from 'react';
 import useTheme from '../site_hooks/useTheme';
-import { playClick } from '../lib/sounds';
+import PropTypes from 'prop-types';
 
 function AnswerButtons({ onAnswer, isLoading, lastAnswer }) {
   const { isDark } = useTheme();
@@ -38,7 +38,7 @@ function AnswerButtons({ onAnswer, isLoading, lastAnswer }) {
   const buttons = [
     { label: 'হ্যাঁ', icon: '✅', color: 'bg-gradient-to-br from-green-500 to-green-600', shadow: 'shadow-green-500/30', delay: 0 },
     { label: 'না', icon: '❌', color: 'bg-gradient-to-br from-red-500 to-red-600', shadow: 'shadow-red-500/30', delay: 100 },
-    { label: 'হয়তো', icon: '🤔', color: 'bg-gradient-to-br from-amber-500 to-amber-600', shadow: 'shadow-amber-500/30', delay: 200 },
+    { label: 'হয়তো', icon: '🤔', color: 'bg-gradient-to-br from-amber-500 to-amber-600', shadow: 'shadow-amber-500/30', delay: 200 },
   ];
 
   return (
@@ -54,7 +54,7 @@ function AnswerButtons({ onAnswer, isLoading, lastAnswer }) {
               handleAction(btn.label);
             }}
             className={`
-              relative py-3 md:py-4 px-1 rounded-2xl md:rounded-3xl font-black text-white transition-all duration-500 overflow-hidden group 
+              relative py-3 md:py-4 px-1 rounded-3xl font-black text-white transition-all duration-500 overflow-hidden group 
               border-2 border-transparent hover:border-white/50 active:scale-95 hover:scale-[1.08]
               ${btn.color} ${btn.shadow}
               ${isLoading ? 'opacity-40 grayscale-[0.4] cursor-not-allowed' : 'hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]'}
@@ -91,7 +91,7 @@ function AnswerButtons({ onAnswer, isLoading, lastAnswer }) {
         <button
           disabled={isLoading}
           aria-label="আমি জানি না"
-          onClick={() => handleAction('জani না')}
+          onClick={() => handleAction('জানি না')}
           className={`
             group relative py-2.5 px-8 text-[10px] md:text-xs font-black rounded-xl border-2 transition-all bengali-font overflow-hidden
             ${isDark 
@@ -108,20 +108,15 @@ function AnswerButtons({ onAnswer, isLoading, lastAnswer }) {
           </span>
         </button>
       </div>
-
-
-
-      <style jsx>{`
-        @keyframes ripple {
-          from { transform: scale(0); opacity: 1; }
-          to { transform: scale(4); opacity: 0; }
-        }
-        .animate-ripple { animation: ripple 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-      `}</style>
     </div>
-
-
   );
 }
+
+AnswerButtons.propTypes = {
+  onAnswer: PropTypes.func.isRequired,
+  onUndo: PropTypes.func,
+  canUndo: PropTypes.bool,
+  isLoading: PropTypes.bool
+};
 
 export default memo(AnswerButtons);

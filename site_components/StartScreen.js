@@ -1,11 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, memo, useCallback } from 'react';
-import { Users, Brain, Trophy, Activity, Star } from 'lucide-react';
-import ThemeToggle from './ThemeToggle';
-import StatsModal from './StatsModal';
+import React, { useState, useEffect, memo } from 'react';
+import { Users, Brain, Trophy, Star } from 'lucide-react';
 import useTheme from '../site_hooks/useTheme';
-import { playClick } from '../lib/sounds';
 
 function StartScreen({ onStartSingle, onStartMultiplayer, welcomeMessage }) {
   const [isVisible, setIsVisible] = useState(false);
@@ -179,7 +176,7 @@ function StartScreen({ onStartSingle, onStartMultiplayer, welcomeMessage }) {
 
 
         <footer className="mt-6 pb-12 text-center animate-fadeIn px-4">
-          <p className="text-xs md:text-sm font-bold tracking-widest text-text-muted uppercase bengali-font opacity-40">
+          <p className="text-sm md:text-base font-bold tracking-widest text-text-muted uppercase bengali-font opacity-40">
             নিশান ও সূর্যের একটি জাদুকরী সৃষ্টি • ১০০% নিখুঁত বাংলা জাদুকরী অভিজ্ঞতা ✨
           </p>
         </footer>

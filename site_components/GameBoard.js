@@ -14,7 +14,6 @@ import AnswerButtons from './AnswerButtons';
 import ResultScreen from './ResultScreen';
 import ErrorToast from './ErrorToast';
 import AchievementNotification from './AchievementNotification';
-import SoundToggle from './SoundToggle';
 import ConfirmationModal from './ConfirmationModal';
 import { saveGameResult, getStats } from '../lib/gameStats';
 import { checkAndUnlock } from '../lib/achievements';
@@ -24,8 +23,7 @@ import {
   playThinking, 
   stopThinking, 
   playCelebration, 
-  playFail,
-  playClick
+  playFail
 } from '../lib/sounds';
 
 const SESSION_KEY = 'chintabot_session_v1';
@@ -50,9 +48,11 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
   const jsonFailureCount = useRef(0);
   const [isLoading, setIsLoading] = useState(false);
   const gameStartedRef = useRef(false);
+  const isFetchingRef = useRef(false);
 
   const fetchQuestion = useCallback(async (msgs, isRetry = false) => {
-    if (isLoading && !isRetry) return;
+    if ((isLoading || isFetchingRef.current) && !isRetry) return;
+    isFetchingRef.current = true;
     setIsLoading(true);
     setGenieState('thinking');
     playThinking();
@@ -175,6 +175,7 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
       }
     } finally {
       setIsLoading(false);
+      isFetchingRef.current = false;
       stopThinking();
     }
   }, [questionCount, selectedCategory, difficulty, confidence, isLoading]);
@@ -232,7 +233,7 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
           setPendingResumeData(parsed);
           setShowResumeModal(true);
         }
-      } catch (e) {
+      } catch {
         sessionStorage.removeItem(SESSION_KEY);
       }
     }
@@ -264,7 +265,7 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
     const handleKeyDown = (e) => {
       if (e.key === '1') handleAnswer('হ্যাঁ');
       if (e.key === '2') handleAnswer('না');
-      if (e.key === '3') handleAnswer('হয়তো');
+      if (e.key === '3') handleAnswer('হয়তো');
       if (e.key === '4') handleAnswer('জানি না');
     };
     window.addEventListener('keydown', handleKeyDown);
