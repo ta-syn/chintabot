@@ -1,5 +1,7 @@
 import { Hind_Siliguri, Cinzel } from 'next/font/google';
 import { ThemeProvider } from "../site_context/ThemeContext";
+import CustomCursor from "../site_components/CustomCursor";
+import GlobalControls from "../site_components/GlobalControls";
 import "./globals.css";
 
 const hindSiliguri = Hind_Siliguri({
@@ -57,6 +59,8 @@ export default function RootLayout({ children }) {
     <html lang="bn" suppressHydrationWarning={true} className={`${hindSiliguri.variable} ${cinzel.variable}`}>
       <body className="font-bengali">
         <ThemeProvider>
+          <CustomCursor />
+          <GlobalControls />
           <div className="min-h-screen flex flex-col">
             {children}
           </div>

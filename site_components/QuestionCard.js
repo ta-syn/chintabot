@@ -53,45 +53,58 @@ function QuestionCard({
       role="status"
       aria-live="polite"
       className={`
-        w-full p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] border-2 transition-all duration-500 relative overflow-hidden accelerate translate-z-0 focus:outline-none
-        ${isDark ? 'glass border-white/5' : 'bg-white shadow-2xl shadow-purple-200/40 border-purple-100'}
+        w-full p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] border-2 transition-all duration-700 relative overflow-hidden accelerate translate-z-0 focus:outline-none card-hover
+        ${isDark ? 'glass bg-white/[0.08] border-white/20 shadow-xl' : 'bg-white shadow-2xl border-purple-100'}
         ${isAnimating ? 'animate-slideLeft' : 'animate-slideRight'}
       `}
     >
-      <div className="absolute top-6 left-6 opacity-10">
-        <Quote className="w-12 h-12 md:w-16 md:h-16 text-royal-500" />
+      {/* Magical Background Decorations */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-royal-500/15 rounded-full blur-[80px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/15 rounded-full blur-[60px] pointer-events-none translate-y-1/2 -translate-x-1/2" />
+
+      <div className="absolute top-6 left-6 opacity-[0.08] dark:opacity-[0.15]">
+        <Quote className="w-16 h-16 md:w-20 md:h-20 text-royal-500" />
       </div>
 
-      <div className="relative z-10 flex flex-col gap-4 md:gap-6">
+      <div className="relative z-10 flex flex-col gap-6 md:gap-8">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-royal-500 animate-pulse" />
-            <span className="text-xs font-bold uppercase tracking-widest opacity-40 bengali-font">প্রশ্ন {questionNumber}</span>
+          <div className="flex items-center gap-3">
+            <div className="w-2.5 h-2.5 rounded-full bg-royal-500 animate-ping" />
+            <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em] text-royal-400 bengali-font">
+              প্রশ্ন {questionNumber}
+            </span>
           </div>
           {category && (
-            <span className="hidden xs:block px-3 py-1 bg-royal-500/10 text-royal-500 text-[10px] font-bold rounded-full uppercase tracking-tighter bengali-font">
-              {category}
-            </span>
+            <div className="flex items-center gap-2 px-4 py-1.5 bg-royal-500/15 border border-royal-500/30 rounded-full shadow-lg backdrop-blur-md">
+               <span className="w-1 h-1 rounded-full bg-royal-500 animate-pulse" />
+               <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest bengali-font text-royal-400">
+                {category}
+               </span>
+            </div>
           )}
         </div>
 
         <div className="min-h-[100px] flex items-center">
-          {isLoading && !isAnimating ? (
+          {isLoading && !isTyping ? (
             <div className="w-full space-y-4">
-              <div className="h-8 bg-royal-500/5 rounded-full w-3/4 animate-pulse" />
-              <div className="h-8 bg-royal-500/5 rounded-full w-1/2 animate-pulse" />
+              <div className="h-10 bg-royal-500/10 rounded-2xl w-full animate-pulse" />
+              <div className="h-10 bg-royal-500/10 rounded-2xl w-4/5 animate-pulse [animation-delay:0.2s]" />
             </div>
           ) : (
-            <h2 className={`${getFontSizeClass()} font-black bengali-font leading-tight text-text-primary`}>
+            <h2 className={`${getFontSizeClass()} font-black bengali-font leading-[1.3] text-text-primary drop-shadow-sm text-center w-full`}>
               {displayedText}
-              {isTyping && <span className="inline-block w-2 h-8 bg-royal-500 ml-1 animate-pulse" aria-hidden="true" />}
+              {isTyping && <span className="inline-block w-1.5 h-10 bg-royal-500 ml-2 animate-pulse rounded-full align-middle" aria-hidden="true" />}
             </h2>
           )}
         </div>
       </div>
 
-      <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-royal-500/5 rounded-full blur-[40px] pointer-events-none" />
+      {/* Decorative Glow Line */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-royal-500/50 to-transparent" />
     </div>
+
+
+
   );
 }
 

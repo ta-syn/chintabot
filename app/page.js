@@ -12,7 +12,7 @@ const MultiplayerLobby = dynamic(() => import('../site_components/MultiplayerLob
 const CategorySelect = dynamic(() => import('../site_components/CategorySelect'), { ssr: false });
 
 const TIPS = [
-  "জানেন কি? ChintaBot ১০,০০০+ চরিত্র চেনে!",
+  "জানেন কি? ChintaBot ২,২০০+ স্পেশাল চরিত্র চেনে!",
   "Gemini AI দিয়ে তৈরি!",
   "বাংলাদেশের জন্য বিশেষভাবে বানানো!",
   "জিনী যত বেশি খেলবে, তত বেশি শিখবে!",
@@ -170,7 +170,7 @@ export default function Home() {
           <GameBoard 
             selectedCategory={selectedCategory}
             difficulty={difficulty}
-            onExit={handleBackToStart}
+            onExit={handleStartSingle}
           />
         )}
         {appState === "multilobby" && (

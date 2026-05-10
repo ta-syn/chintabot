@@ -12,7 +12,12 @@ export async function GET(request) {
       return NextResponse.json({ error: "রুম কোড প্রয়োজন" }, { status: 400 });
     }
 
-    await connectToDatabase();
+    try {
+      await connectToDatabase();
+    } catch (dbErr) {
+      console.error("Database Connection Error:", dbErr);
+      return NextResponse.json({ error: "ডাটাবেজ সংযোগে সমস্যা হয়েছে" }, { status: 500 });
+    }
     
     // Find room and update heartbeat for current player
     const update = {};
@@ -33,7 +38,7 @@ export async function GET(request) {
     return NextResponse.json({ success: true, room });
   } catch (error) {
     console.error("Multiplayer GET Error:", error);
-    return NextResponse.json({ error: "সার্ভারে সমস্যা হয়েছে" }, { status: 500 });
+    return NextResponse.json({ error: "সার্ভারে সমস্যা হয়েছে: " + error.message }, { status: 500 });
   }
 }
 
@@ -42,12 +47,27 @@ export async function POST(request) {
     const body = await request.json();
     const { action, playerName, roomCode, secretCharacter, updateData } = body;
 
-    await connectToDatabase();
+    try {
+      await connectToDatabase();
+    } catch (dbErr) {
+      console.error("Database Connection Error:", dbErr);
+      return NextResponse.json({ error: "ডাটাবেজ সংযোগে সমস্যা হয়েছে" }, { status: 500 });
+    }
 
     const cleanCode = roomCode?.toUpperCase();
 
     switch (action) {
       case 'create':
+        if (!cleanCode || !playerName) {
+          return NextResponse.json({ error: "কোড এবং নাম প্রয়োজন" }, { status: 400 });
+        }
+        
+        // Check if room already exists
+        const existing = await Room.findOne({ code: cleanCode });
+        if (existing) {
+          await Room.deleteOne({ code: cleanCode });
+        }
+
         const newRoom = await Room.create({
           code: cleanCode,
           host: playerName,
@@ -61,6 +81,7 @@ export async function POST(request) {
       case 'join':
         const roomToJoin = await Room.findOne({ code: cleanCode });
         if (!roomToJoin) return NextResponse.json({ error: "রুম পাওয়া যায়নি" }, { status: 404 });
+        
         if (roomToJoin.players.length >= 2 && !roomToJoin.players.includes(playerName)) {
           return NextResponse.json({ error: "রুম পূর্ণ" }, { status: 400 });
         }
@@ -101,7 +122,7 @@ export async function POST(request) {
     }
   } catch (error) {
     console.error("Multiplayer POST Error:", error);
-    return NextResponse.json({ error: "সার্ভারে সমস্যা হয়েছে", message: error.message }, { status: 500 });
+    return NextResponse.json({ error: "সার্ভারে সমস্যা হয়েছে: " + error.message }, { status: 500 });
   }
 }
 

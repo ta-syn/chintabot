@@ -24,7 +24,8 @@ import {
   playThinking, 
   stopThinking, 
   playCelebration, 
-  playFail 
+  playFail,
+  playClick
 } from '../lib/sounds';
 
 const SESSION_KEY = 'chintabot_session_v1';
@@ -176,7 +177,7 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
       setIsLoading(false);
       stopThinking();
     }
-  }, [questionCount, selectedCategory, difficulty]);
+  }, [questionCount, selectedCategory, difficulty, confidence, isLoading]);
 
   const startGame = useCallback(() => {
     setGameState('playing');
@@ -322,37 +323,54 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
   }, [messages, questionCount, confidence, selectedCategory, isAnimating, gameState, isLoading]);
 
   return (
-    <div className={`min-h-screen flex flex-col p-4 md:p-8 animate-fadeIn ${isDark ? 'bg-deep-800' : 'bg-[#fcf8ff]'}`}>
-      <nav className="flex justify-between items-center mb-8 max-w-6xl mx-auto w-full">
-        <button onClick={onExit} className="p-3 glass rounded-xl shadow-sm hover:scale-110 active:scale-95 transition-all">
-          <XCircle className="w-5 h-5" />
+    <div className={`min-h-screen flex flex-col p-4 md:p-6 lg:p-8 animate-fadeIn transition-all duration-1000 ease-in-out ${isDark ? 'mesh-gradient' : 'mesh-gradient-light'}`}>
+      {/* Immersive Background Particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[10%] left-[5%] w-[40%] h-[40%] bg-royal-500/10 rounded-full blur-[100px] animate-pulse" />
+        <div className="absolute bottom-[10%] right-[5%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[100px] animate-pulse [animation-delay:4s]" />
+      </div>
+
+      <nav className="flex justify-between items-center mb-6 md:mb-8 max-w-7xl mx-auto w-full z-20">
+        <button 
+          onClick={onExit} 
+          className="p-3 md:p-4 glass bg-white/10 rounded-2xl shadow-xl hover:scale-110 active:scale-95 transition-all border border-white/20 group"
+        >
+          <XCircle className="w-5 h-5 md:w-6 md:h-6 text-red-500 group-hover:scale-110 transition-transform drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
         </button>
-        <div className="flex items-center gap-2">
+        
+        <div className="flex items-center gap-4">
           <button 
             onClick={undoLastAction}
             disabled={messages.length < 2 || isLoading || isAnimating}
-            className={`p-3 glass rounded-xl shadow-sm transition-all flex items-center gap-2 group ${messages.length < 2 ? 'opacity-20 grayscale cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
+            className={`
+              group flex items-center gap-3 px-5 py-3 md:px-6 md:py-4 glass bg-white/10 rounded-2xl shadow-xl transition-all border border-white/20
+              ${messages.length < 2 ? 'opacity-30 cursor-not-allowed' : 'hover:scale-105 active:scale-95 hover:bg-amber-500/20'}
+            `}
           >
-            <RotateCcw className={`w-5 h-5 transition-transform ${!isLoading && !isAnimating ? 'group-hover:-rotate-45' : ''}`} />
-            <span className="hidden md:inline text-xs font-bold bengali-font">পিছিয়ে যান</span>
+            <RotateCcw className={`w-4 h-4 md:w-5 md:h-5 text-amber-500 transition-transform ${!isLoading && !isAnimating ? 'group-hover:-rotate-180' : 'animate-spin'} drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]`} />
+            <span className="hidden sm:inline text-[10px] md:text-xs font-black bengali-font text-text-primary tracking-widest uppercase">পিছিয়ে যান</span>
           </button>
-          <SoundToggle />
         </div>
       </nav>
 
-      <div className="flex-1 max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pb-12">
-        <div className="lg:col-span-5 flex flex-col items-center justify-center translate-z-0">
-          <Genie state={genieState} />
+      <div className="flex-1 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center pb-12 z-10">
+        <div className="lg:col-span-5 flex flex-col items-center justify-center relative perspective-1000">
+          <div className="absolute inset-0 bg-royal-500/30 rounded-full blur-[120px] animate-pulse opacity-50" />
+          <div className="relative animate-float scale-90 md:scale-100">
+            <Genie state={genieState} />
+          </div>
         </div>
 
-        <div className="lg:col-span-7 flex flex-col gap-6 w-full max-w-2xl mx-auto">
-          <ProgressBar 
-            questionCount={questionCount} 
-            maxQuestions={difficulty.maxQuestions || 20} 
-            confidence={confidence} 
-          />
+        <div className="lg:col-span-7 flex flex-col gap-6 md:gap-8 w-full max-w-4xl mx-auto">
+          <div className="animate-slideDown">
+            <ProgressBar 
+              questionCount={questionCount} 
+              maxQuestions={difficulty.maxQuestions || 20} 
+              confidence={confidence} 
+            />
+          </div>
           
-          <div className={`transition-all duration-500 ${isAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+          <div className={`transition-all duration-700 ${isAnimating ? 'opacity-0 scale-95 blur-md' : 'opacity-100 scale-100 blur-0'}`}>
             <QuestionCard 
               question={currentQuestion} 
               questionNumber={questionCount}
@@ -361,31 +379,32 @@ function GameBoard({ selectedCategory = 'all', difficulty, onExit }) {
             />
           </div>
 
-          {gameState === 'welcome' ? (
-            <button 
-              onClick={startGame}
-              className="w-full py-6 md:py-8 bg-royal-500 text-white rounded-[2rem] md:rounded-[2.5rem] font-black text-xl md:text-2xl bengali-font shadow-2xl shadow-purple-500/20 hover:scale-[1.02] active:scale-95 transition-all animate-bounceIn flex items-center justify-center gap-3 group"
-            >
-              খেলা শুরু করি! <Sparkles className="w-6 h-6 group-hover:rotate-12 transition-transform" />
-            </button>
-          ) : (
-            <AnswerButtons 
-              onAnswer={handleAnswer} 
-              isLoading={isLoading || isAnimating}
-              lastAnswer={lastAnswer}
-            />
-          )}
-
-          <div className="flex justify-center mt-4">
-            <div className={`text-[10px] md:text-sm font-bold opacity-30 flex items-center gap-4 transition-opacity ${gameState === 'playing' ? 'opacity-30' : 'opacity-0'}`}>
-              <div className="flex items-center gap-1.5"><kbd className="px-2 py-0.5 glass rounded-md">1</kbd> হ্যাঁ</div>
-              <div className="flex items-center gap-1.5"><kbd className="px-2 py-0.5 glass rounded-md">2</kbd> না</div>
-              <div className="flex items-center gap-1.5"><kbd className="px-2 py-0.5 glass rounded-md">3</kbd> হয়তো</div>
-              <div className="flex items-center gap-1.5"><kbd className="px-2 py-0.5 glass rounded-md">4</kbd> জানি না</div>
-            </div>
+          <div className="animate-slideUp [animation-delay:400ms]">
+            {gameState === 'welcome' ? (
+              <button 
+                onClick={startGame}
+                className="w-full py-8 md:py-10 bg-gradient-to-r from-royal-600 via-royal-500 to-purple-600 text-white rounded-[2.5rem] md:rounded-[3rem] font-black text-2xl md:text-3xl bengali-font shadow-[0_20px_40px_rgba(139,92,246,0.3)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 group relative overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                খেলা শুরু করি! 
+                <Sparkles className="w-6 h-6 md:w-8 md:h-8 group-hover:rotate-45 transition-transform" />
+              </button>
+            ) : (
+              <AnswerButtons 
+                onAnswer={handleAnswer} 
+                isLoading={isLoading || isAnimating}
+                lastAnswer={lastAnswer}
+              />
+            )}
           </div>
+
         </div>
       </div>
+
+
+
+
+
 
       {gameState === 'result' && (
         <ResultScreen 

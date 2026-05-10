@@ -219,23 +219,84 @@ body {
   animation: wave 10s ease-in-out infinite;
 }
 
-/* Custom Utilities */
-.text-gold-shimmer {
-  background: linear-gradient(to right, #facc15 0%, #ffffff 50%, #facc15 100%);
-  background-size: 200% auto;
-  color: transparent;
-  background-clip: text;
-  -webkit-background-clip: text;
-  animation: shimmer 3s linear infinite;
+/* Mesh Gradient Background */
+.mesh-gradient {
+  background-color: #0a0015;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(263, 85%, 20%, 1) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, hsla(280, 80%, 25%, 1) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(320, 70%, 20%, 1) 0, transparent 50%),
+    radial-gradient(at 50% 50%, hsla(263, 85%, 10%, 1) 0, transparent 50%),
+    radial-gradient(at 0% 100%, hsla(240, 80%, 15%, 1) 0, transparent 50%),
+    radial-gradient(at 100% 100%, hsla(300, 70%, 15%, 1) 0, transparent 50%);
+  background-attachment: fixed;
 }
 
-.shadow-glow-purple { box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
-.shadow-glow-gold { box-shadow: 0 0 25px rgba(250, 204, 21, 0.5); }
-.shadow-glow-green { box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); }
+.mesh-gradient-light {
+  background-color: #fcf8ff;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(263, 100%, 98%, 1) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, hsla(280, 100%, 96%, 1) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(200, 100%, 98%, 1) 0, transparent 50%),
+    radial-gradient(at 50% 100%, hsla(263, 100%, 95%, 1) 0, transparent 50%);
+}
 
-.bengali-font { font-family: 'Hind Siliguri', sans-serif; }
+/* Glossy Effect */
+.glossy {
+  position: relative;
+  overflow: hidden;
+}
 
-/* Confidence Jump Glow */
-.confidence-jump {
-  animation: confidence-glow 0.8s ease-in-out;
+.glossy::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 45%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 55%,
+    transparent 100%
+  );
+  transform: rotate(-45deg);
+  pointer-events: none;
+  animation: shine 6s infinite;
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%) rotate(-45deg); }
+  20%, 100% { transform: translateX(100%) rotate(-45deg); }
+}
+
+.text-gradient {
+  background: linear-gradient(to right, #8b5cf6, #d946ef);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.card-hover {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card-hover:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.inner-glow {
+  box-shadow: inset 0 0 15px rgba(139, 92, 246, 0.2);
+}
+
+.bengali-font {
+  font-family: var(--font-hind-siliguri), sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.cinzel-font {
+  font-family: var(--font-cinzel), serif;
 }

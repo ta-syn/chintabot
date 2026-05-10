@@ -2,6 +2,7 @@
 
 import React, { useState, memo, useRef, useCallback } from 'react';
 import useTheme from '../site_hooks/useTheme';
+import { playClick } from '../lib/sounds';
 
 function AnswerButtons({ onAnswer, isLoading, lastAnswer }) {
   const { isDark } = useTheme();
@@ -41,8 +42,8 @@ function AnswerButtons({ onAnswer, isLoading, lastAnswer }) {
   ];
 
   return (
-    <div className="w-full max-w-lg mx-auto flex flex-col gap-6 mt-4 px-2 translate-z-0">
-      <div className="flex flex-row gap-2 sm:gap-4 w-full">
+    <div className="w-full max-w-xl mx-auto flex flex-col gap-4 mt-2 px-4 translate-z-0">
+      <div className="grid grid-cols-3 gap-3 md:gap-4 w-full">
         {buttons.map((btn) => (
           <button
             key={btn.label}
@@ -53,23 +54,27 @@ function AnswerButtons({ onAnswer, isLoading, lastAnswer }) {
               handleAction(btn.label);
             }}
             className={`
-              relative flex-1 py-5 px-2 sm:px-6 rounded-3xl font-black text-white transition-all duration-300 accelerate translate-z-0 overflow-hidden group
+              relative py-3 md:py-4 px-1 rounded-2xl md:rounded-3xl font-black text-white transition-all duration-500 overflow-hidden group 
+              border-2 border-transparent hover:border-white/50 active:scale-95 hover:scale-[1.08]
               ${btn.color} ${btn.shadow}
-              ${isLoading ? 'opacity-50 grayscale-[0.2] cursor-not-allowed' : 'hover:scale-[1.05] hover:shadow-xl active:scale-95'}
-              ${(lastAnswer === btn.label || clickedBtn === btn.label) ? 'ring-4 ring-white ring-offset-4 ring-offset-royal-500/20 scale-[1.05]' : ''}
-              bengali-font min-h-[58px] animate-slideUp
+              ${isLoading ? 'opacity-40 grayscale-[0.4] cursor-not-allowed' : 'hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]'}
+              ${(lastAnswer === btn.label || clickedBtn === btn.label) ? 'border-white shadow-[0_0_40px_rgba(255,255,255,0.5)] z-10 scale-[1.05]' : ''}
+              bengali-font min-h-[60px] md:min-h-[75px] animate-slideUp
             `}
             style={{ animationDelay: `${btn.delay}ms` }}
           >
-            <span className="flex items-center justify-center gap-2 relative z-10">
-              <span className="text-xl group-hover:animate-bounce">{btn.icon}</span>
-              <span className="hidden sm:inline text-lg">{btn.label}</span>
+            {/* Glossy Reflection Effect */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-white/20 via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            
+            <span className="flex flex-col items-center justify-center gap-1 md:gap-1.5 relative z-10">
+              <span className="text-xl md:text-2xl transform group-hover:scale-110 transition-transform drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">{btn.icon}</span>
+              <span className="text-[10px] md:text-base font-black tracking-tight drop-shadow-md">{btn.label}</span>
             </span>
             
             {ripples.map(ripple => (
               <span
                 key={ripple.id}
-                className="absolute bg-white/30 rounded-full animate-ripple pointer-events-none"
+                className="absolute bg-white/40 rounded-full animate-ripple pointer-events-none"
                 style={{
                   width: ripple.size,
                   height: ripple.size,
@@ -82,33 +87,40 @@ function AnswerButtons({ onAnswer, isLoading, lastAnswer }) {
         ))}
       </div>
 
-      <div className="flex flex-col items-center gap-4 animate-slideUp accelerate translate-z-0" style={{ animationDelay: '300ms' }}>
+      <div className="flex justify-center animate-slideUp" style={{ animationDelay: '300ms' }}>
         <button
           disabled={isLoading}
           aria-label="আমি জানি না"
-          onClick={() => handleAction('জানি না')}
+          onClick={() => handleAction('জani না')}
           className={`
-            w-full sm:w-auto py-4 px-10 text-base font-black rounded-full border-2 transition-all group bengali-font
+            group relative py-2.5 px-8 text-[10px] md:text-xs font-black rounded-xl border-2 transition-all bengali-font overflow-hidden
             ${isDark 
-              ? 'border-royal-500/30 text-purple-200 hover:bg-royal-500/10' 
-              : 'border-purple-200 text-purple-600 hover:bg-purple-50 shadow-sm'
+              ? 'border-white/10 text-white glass bg-white/5 hover:border-royal-400 hover:bg-royal-500/20 hover:shadow-[0_0_20px_rgba(139,92,246,0.3)]' 
+              : 'border-royal-500/20 text-royal-700 bg-white hover:border-royal-500 hover:bg-royal-50 shadow-md'
             }
-            ${isLoading ? 'opacity-50' : 'active:scale-95 hover:scale-105'}
+            ${isLoading ? 'opacity-30' : 'active:scale-95 hover:scale-105'}
           `}
         >
-          <span className="group-hover:rotate-12 inline-block transition-transform mr-2">⚪</span>
-          জানি না
+          <div className="absolute inset-0 bg-gradient-to-r from-royal-500/0 via-royal-500/10 to-royal-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+          <span className="flex items-center gap-2 relative z-10">
+            <span className="opacity-60 group-hover:rotate-180 transition-transform duration-700">⚪</span>
+            জানি না
+          </span>
         </button>
       </div>
+
+
 
       <style jsx>{`
         @keyframes ripple {
           from { transform: scale(0); opacity: 1; }
           to { transform: scale(4); opacity: 0; }
         }
-        .animate-ripple { animation: ripple 0.6s ease-out forwards; }
+        .animate-ripple { animation: ripple 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
       `}</style>
     </div>
+
+
   );
 }
 

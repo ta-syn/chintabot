@@ -9,55 +9,66 @@ function ProgressBar({ questionCount, maxQuestions = 20, confidence = 0 }) {
   const progressPercent = (questionCount / maxQuestions) * 100;
   
   return (
-    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn translate-z-0">
-      <div className="flex justify-between items-end px-2">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <div className={`p-1.5 rounded-lg ${isDark ? 'bg-royal-500/10' : 'bg-royal-500/5'} border border-royal-500/20 shadow-sm`}>
-              <Zap className="w-4 h-4 text-royal-500" />
+    <div className="w-full space-y-4 animate-fadeIn translate-z-0">
+      <div className="grid grid-cols-2 gap-3 md:gap-4">
+        {/* Progress Card */}
+        <div className={`p-4 md:p-5 rounded-[1.5rem] md:rounded-[2rem] border transition-all duration-500 ${isDark ? 'glass bg-white/[0.05] border-white/10 shadow-lg' : 'bg-white shadow-xl border-royal-500/10'}`}>
+          <div className="flex items-center gap-2 mb-1.5 md:mb-2">
+            <div className="w-7 h-7 rounded-lg bg-royal-500/20 flex items-center justify-center text-royal-500 shadow-glow-purple">
+              <Zap className="w-3.5 h-3.5 fill-current" />
             </div>
-            <span className="text-xs font-black uppercase tracking-widest opacity-40 bengali-font">অগ্রগতি</span>
+            <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.1em] text-royal-400 bengali-font">অগ্রগতি</span>
           </div>
-          <span className="text-2xl md:text-3xl font-black text-text-primary tracking-tighter">
-            {questionCount}<span className="text-sm opacity-30 mx-1">/</span>{maxQuestions}
-          </span>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-2xl md:text-4xl font-black text-text-primary tracking-tighter drop-shadow-sm">{questionCount}</span>
+            <span className="text-sm md:text-lg font-bold opacity-30 tracking-tighter">/ {maxQuestions}</span>
+          </div>
         </div>
 
-        <div className="flex flex-col items-end gap-1">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-black uppercase tracking-widest opacity-40 bengali-font">নিশ্চিততা</span>
-            <div className={`p-1.5 rounded-lg ${isDark ? 'bg-gold-500/10' : 'bg-gold-500/5'} border border-gold-500/20 shadow-sm`}>
-              <Target className="w-4 h-4 text-gold-500" />
+        {/* Confidence Card */}
+        <div className={`p-4 md:p-5 rounded-[1.5rem] md:rounded-[2rem] border transition-all duration-500 ${isDark ? 'glass bg-white/[0.05] border-white/10 shadow-lg' : 'bg-white shadow-xl border-gold-500/10'}`}>
+          <div className="flex items-center gap-2 mb-1.5 md:mb-2">
+            <div className="w-7 h-7 rounded-lg bg-gold-500/20 flex items-center justify-center text-gold-500 shadow-glow-amber">
+              <Target className="w-3.5 h-3.5 fill-current" />
             </div>
+            <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.1em] text-gold-400 bengali-font">নিশ্চিততা</span>
           </div>
-          <span className={`text-2xl md:text-3xl font-black tracking-tighter transition-colors duration-500 ${
-            confidence > 80 ? 'text-gold-500' : confidence > 50 ? 'text-royal-500' : 'text-text-primary'
-          }`}>
-            {confidence}<span className="text-xs opacity-50 ml-0.5">%</span>
-          </span>
+          <div className="flex items-baseline gap-1.5">
+            <span className={`text-2xl md:text-4xl font-black tracking-tighter transition-colors duration-500 drop-shadow-sm ${
+              confidence > 80 ? 'text-gold-400' : confidence > 50 ? 'text-royal-400' : 'text-text-primary'
+            }`}>
+              {confidence}
+            </span>
+            <span className="text-sm md:text-lg font-bold opacity-30 tracking-tighter">%</span>
+          </div>
         </div>
       </div>
 
-      <div className="relative h-4 md:h-5 w-full bg-black/5 dark:bg-white/5 rounded-full overflow-hidden border border-white/5 p-1">
-        {/* Track */}
+      <div className="relative p-1.5 glass rounded-full border border-white/10 shadow-xl overflow-hidden">
+        {/* Track Background */}
+        <div className="absolute inset-0 bg-black/20 dark:bg-white/5" />
+        
+        {/* Progress Fill */}
         <div 
-          className="h-full bg-gradient-to-r from-royal-500 to-purple-400 rounded-full transition-all duration-1000 ease-out shadow-glow-purple relative overflow-hidden"
-          style={{ width: `${Math.min(100, progressPercent)}%` }}
+          className="h-2.5 md:h-3.5 bg-gradient-to-r from-royal-600 via-royal-500 to-purple-400 rounded-full transition-all duration-1000 ease-out shadow-glow-purple relative overflow-hidden group"
+          style={{ width: `${Math.max(6, Math.min(100, progressPercent))}%` }}
         >
-          {/* Shimmer Effect */}
+          {/* Shimmering Pulse */}
           <div className="absolute inset-0 bg-white/20 animate-pulse" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent translate-x-[-100%] animate-[shimmer_2s_infinite]" />
         </div>
       </div>
       
-      {/* Mobile-only compact labels for very small screens */}
-      {questionCount > 0 && (
-        <div className="flex justify-center sm:hidden">
-          <p className="text-[10px] font-bold opacity-30 bengali-font">
-            এখনও {maxQuestions - questionCount}টি প্রশ্ন বাকি
-          </p>
-        </div>
-      )}
+      {/* Motivational Label */}
+      <div className="flex justify-center -mt-1">
+        <p className="text-[9px] md:text-[10px] font-black text-royal-500/60 bengali-font uppercase tracking-[0.3em] animate-pulse">
+           জাদু উন্মোচিত হচ্ছে... ✨
+        </p>
+      </div>
     </div>
+
+
+
   );
 }
 

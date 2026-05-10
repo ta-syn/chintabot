@@ -2,17 +2,33 @@ import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { buildMessages, parseGeminiResponse } from '../../../lib/prompt.js';
 
+// ✅ Model Definitions
+const AI_MODELS = [
+  // Primary: Gemini Models (Fast & Reliable)
+  { type: 'gemini', id: "gemini-2.0-flash" },
+  { type: 'gemini', id: "gemini-flash-latest" },
+  
+  // Fallbacks: OpenRouter Free Models (Verified Working ✅)
+  { type: 'openrouter', id: "openrouter/free" },
+  { type: 'openrouter', id: "nvidia/nemotron-nano-9b-v2:free" },
+  { type: 'openrouter', id: "minimax/minimax-m2.5:free" },
+  { type: 'openrouter', id: "liquid/lfm-2.5-1.2b-thinking:free" },
+  { type: 'openrouter', id: "baidu/cobuddy:free" },
+  { type: 'openrouter', id: "nvidia/nemotron-3-nano-30b-a3b:free" },
+];
+
 export async function POST(request) {
   try {
     const body = await request.json();
     const { messages: rawMessages = [], questionCount = 0, category = 'all', confidence = 0 } = body;
 
     const geminiApiKey = process.env.GEMINI_API_KEY;
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY || geminiApiKey; // Fallback to gemini key if user used it there (sometimes they are the same in proxies)
 
-    if (!geminiApiKey || geminiApiKey === "your_gemini_api_key_here") {
+    if (!geminiApiKey && !process.env.OPENROUTER_API_KEY) {
        return NextResponse.json({ 
         error: "NO_API_KEY", 
-        text: 'এপিআই কী খুঁজে পাওয়া যায়নি', 
+        text: 'এপিআই কী খুঁজে পাওয়া যায়নি। দয়া করে GEMINI_API_KEY বা OPENROUTER_API_KEY সেট করুন।', 
         message: 'এপিআই কী প্রয়োজন' 
       }, { status: 500 });
     }
@@ -23,74 +39,87 @@ export async function POST(request) {
     const systemMsg = promptMessages.find(m => m.role === 'system');
     const systemInstruction = systemMsg ? systemMsg.content : "";
     
-    // Prepare history for Gemini (excluding system and the very last user message)
-    // Gemini chat history should be pairs of user/model
-    const history = [];
+    // Prepare history for LLMs
     const chatMessages = promptMessages.filter(m => m.role !== 'system');
     const lastUserMsg = chatMessages[chatMessages.length - 1];
-    
-    // We need to convert promptMessages to Gemini's { role: 'user'|'model', parts: [{ text: '' }] } format
-    for (let i = 0; i < chatMessages.length - 1; i++) {
-        const msg = chatMessages[i];
-        history.push({
-            role: msg.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: msg.content }]
-        });
-    }
-
-    const genAI = new GoogleGenerativeAI(geminiApiKey);
-    const geminiModels = [
-        "gemini-2.0-flash",
-        "gemini-2.5-flash",
-        "gemini-flash-latest",
-        "gemini-1.5-flash",
-    ];
+    const history = chatMessages.slice(0, -1).map(msg => ({
+      role: msg.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: msg.content }]
+    }));
 
     let aiText = "";
     let lastError = "";
 
-    // ✅ Delay helper to handle rate limits
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    for (const modelName of geminiModels) {
+    // ✅ Iterating through models until one works
+    for (const modelInfo of AI_MODELS) {
       try {
-        console.log(`Trying model: ${modelName}...`);
+        console.log(`🚀 Trying model: ${modelInfo.id} (${modelInfo.type})...`);
 
-        const model = genAI.getGenerativeModel({
-            model: modelName,
-            systemInstruction: systemInstruction,
-        });
+        if (modelInfo.type === 'gemini') {
+          if (!geminiApiKey) continue;
+          const genAI = new GoogleGenerativeAI(geminiApiKey);
+          const model = genAI.getGenerativeModel({
+              model: modelInfo.id,
+              systemInstruction: systemInstruction,
+          });
+          const chat = model.startChat({ history });
+          const result = await chat.sendMessage(lastUserMsg.content);
+          aiText = result.response.text();
+        } 
+        else if (modelInfo.type === 'openrouter') {
+          if (!openRouterApiKey) {
+            console.warn(`⏭️ Skipping ${modelInfo.id}: No API Key`);
+            continue;
+          }
 
-        const chat = model.startChat({ history });
-        const result = await chat.sendMessage(lastUserMsg.content);
-        aiText = result.response.text();
-        
-        if (aiText) break;
+          const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${openRouterApiKey}`,
+              "Content-Type": "application/json",
+              "HTTP-Referer": "https://chintabot.vercel.app", // Optional
+              "X-Title": "ChintaBot", // Optional
+            },
+            body: JSON.stringify({
+              model: modelInfo.id,
+              messages: [
+                { role: 'system', content: systemInstruction },
+                ...chatMessages.map(m => ({
+                  role: m.role === 'assistant' ? 'assistant' : 'user',
+                  content: m.content
+                }))
+              ],
+              temperature: 0.7,
+            })
+          });
+
+          const data = await response.json();
+          if (data.error) {
+            throw new Error(data.error.message || "OpenRouter Error");
+          }
+          aiText = data.choices[0].message.content;
+        }
+
+        if (aiText) {
+          console.log(`✅ Success with ${modelInfo.id}`);
+          break;
+        }
       } catch (err) {
-        console.warn(`❌ Model ${modelName} failed:`, err.message);
+        console.warn(`❌ Model ${modelInfo.id} failed:`, err.message);
         lastError = err.message;
         
-        // Handle Rate Limit (429) specifically - Wait 3s and try next model
-        if (err.message.includes('429') || err.message.includes('quota')) {
-           console.warn(`⏳ Rate limited on ${modelName}, waiting 2 seconds...`);
-           await sleep(2000); // 2 seconds delay to stay within Vercel's 10s limit
-           continue; 
+        // Handle Rate Limit (429) specifically
+        if (err.message.includes('429') || err.message.includes('quota') || err.message.includes('limit')) {
+           console.warn(`⏳ Rate limited, waiting 1s before next model...`);
+           await sleep(1000); 
         }
-        
         continue;
       }
     }
 
     if (!aiText) {
-      // If after all retries it still fails with rate limit
-      if (lastError.includes('429') || lastError.includes('quota')) {
-        return NextResponse.json({ 
-            error: true, 
-            message: 'গুগল এপিআই-এর ফ্রি লিমিট শেষ হয়ে গেছে। দয়া করে ৩০ সেকেন্ড অপেক্ষা করে আবার চেষ্টা করুন।', 
-            type: 'rate_limit'
-          }, { status: 429 });
-      }
-
       return NextResponse.json({ 
         error: true, 
         message: `সবগুলো এপিআই ফেইল করেছে। শেষ এরর: ${lastError}`, 
@@ -114,3 +143,4 @@ export async function POST(request) {
     }, { status: 500 });
   }
 }
+

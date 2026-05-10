@@ -85,35 +85,28 @@ function ResultScreen({
   if (!result) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-hidden">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-hidden backdrop-blur-sm">
       
-      <div className={`absolute inset-0 bg-black transition-opacity duration-700 ${stage >= 1 ? 'opacity-90' : 'opacity-0'}`} />
+      <div className={`absolute inset-0 bg-black transition-opacity duration-1000 ${stage >= 1 ? 'opacity-90' : 'opacity-0'}`} />
       
       <div className={`absolute inset-0 transition-opacity duration-1000 ${stage >= 2 ? 'opacity-100' : 'opacity-0'}`}
-           style={{ background: 'radial-gradient(circle at center, rgba(139, 92, 246, 0.2) 0%, transparent 70%)' }} />
+           style={{ background: 'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.3) 0%, transparent 70%)' }} />
 
       {stage >= 3 && stage < 5 && (
-        <div className="relative z-10 flex flex-col items-center gap-6 animate-pulse">
-          <div className="relative w-40 h-24 md:w-56 md:h-32 drop-shadow-[0_0_40px_rgba(250,204,21,0.6)]">
-            <svg viewBox="0 0 240 120" className="w-full h-full">
-              <defs>
-                <linearGradient id="gold-master-res" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#fef08a" />
-                  <stop offset="40%" stopColor="#facc15" />
-                  <stop offset="60%" stopColor="#eab308" />
-                  <stop offset="100%" stopColor="#854d0e" />
-                </linearGradient>
-              </defs>
-              <path d="M190 65 C230 65 230 30 190 30 C170 30 160 50 170 65" fill="none" stroke="url(#gold-master-res)" strokeWidth="8" strokeLinecap="round" />
-              <ellipse cx="110" cy="75" rx="70" ry="35" fill="url(#gold-master-res)" />
-              <path d="M45 70 C10 70 5 45 25 40 L50 40 C40 70 45 75 55 75 Z" fill="url(#gold-master-res)" />
-              <rect x="75" y="105" width="70" height="10" rx="5" fill="#854d0e" />
-              <ellipse cx="110" cy="105" rx="45" ry="6" fill="url(#gold-master-res)" />
-              <ellipse cx="110" cy="40" rx="20" ry="10" fill="url(#gold-master-res)" />
-              <circle cx="110" cy="30" r="6" fill="url(#gold-master-res)" />
+        <div className="relative z-10 flex flex-col items-center gap-10 animate-float">
+          <div className="relative w-48 h-32 md:w-64 md:h-40 filter drop-shadow-[0_0_50px_rgba(250,204,21,0.5)]">
+            <svg viewBox="0 0 240 120" className="w-full h-full animate-pulse">
+               <defs>
+                 <linearGradient id="gold-res" x1="0%" y1="0%" x2="0%" y2="100%">
+                   <stop offset="0%" stopColor="#fef08a" />
+                   <stop offset="100%" stopColor="#eab308" />
+                 </linearGradient>
+               </defs>
+               <path d="M110 20 L130 40 L110 60 L90 40 Z" fill="url(#gold-res)" />
+               <circle cx="110" cy="40" r="15" fill="white" opacity="0.2" className="animate-ping" />
             </svg>
           </div>
-          <h2 className="text-3xl md:text-5xl font-black text-white bengali-font tracking-widest animate-fadeIn">আমি চিনে ফেলেছি...</h2>
+          <h2 className="text-4xl md:text-6xl font-black text-white bengali-font tracking-widest animate-fadeIn [animation-duration:1s]">চিনে ফেলেছি! ✨</h2>
         </div>
       )}
 
@@ -128,70 +121,79 @@ function ResultScreen({
             height: `${c.size}px`,
             borderRadius: '50%',
             animationDelay: `${c.delay}s`,
-            animationDuration: `${c.duration}s`
+            animationDuration: `${c.duration}s`,
+            boxShadow: `0 0 10px ${c.color}`
           }}
         />
       ))}
 
-      <div className="relative z-20 w-full max-w-lg">
+      <div className="relative z-20 w-full max-w-xl px-4">
         {stage >= 5 && (
           <div className={`
-            w-full p-8 md:p-12 rounded-[3.5rem] border-4 transition-all duration-700 accelerate translate-z-0
-            ${isSuccess ? 'border-amber-400 shadow-glow-gold' : 'border-red-500/30'}
-            ${isDark ? 'glass-dark' : 'bg-white shadow-2xl'}
+            w-full p-10 md:p-14 rounded-[3.5rem] border-2 transition-all duration-1000 accelerate translate-z-0 overflow-hidden relative
+            ${isSuccess ? 'border-amber-400/30 shadow-[0_40px_80px_rgba(234,179,8,0.2)]' : 'border-red-500/20'}
+            ${isDark ? 'glass bg-black/60 backdrop-blur-3xl' : 'bg-white shadow-2xl'}
             animate-slam
           `}>
+            {/* Glossy Overlay */}
+            <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
             
             {isSuccess ? (
-              <div className="space-y-8 text-center">
-                <div className="space-y-2">
-                  <span className="text-xs font-bold tracking-[0.2em] text-amber-500 uppercase bengali-font bg-amber-500/10 px-4 py-1.5 rounded-full inline-block">✨ উত্তরটি হলো</span>
+              <div className="space-y-10 text-center relative z-10">
+                <div className="space-y-4">
+                   <div className="flex items-center justify-center gap-3">
+                      <div className="w-10 h-[1px] bg-amber-500/30" />
+                      <span className="text-[10px] md:text-xs font-black tracking-[0.4em] text-amber-500 uppercase bengali-font">আপনার মনের চরিত্র</span>
+                      <div className="w-10 h-[1px] bg-amber-500/30" />
+                   </div>
                   
                   {stage >= 6 && (
-                    <h1 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-amber-600 py-2 bengali-font leading-tight animate-bounceIn">
+                    <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-gold-400 to-amber-600 py-3 bengali-font leading-[1.2] animate-bounceIn drop-shadow-xl">
                       {result.banglaName || result.character}
                     </h1>
                   )}
                 </div>
 
                 {stage >= 7 && result.description && (
-                  <div className="animate-slideUp">
-                    <p className="text-lg md:text-2xl opacity-90 italic bengali-font text-text-primary leading-relaxed">
+                  <div className="animate-slideUp [animation-delay:400ms]">
+                    <p className="text-xl md:text-3xl font-bold opacity-90 italic bengali-font text-text-primary leading-relaxed px-4">
                       &quot;{result.description}&quot;
                     </p>
                   </div>
                 )}
                 
                 {stage >= 8 && (
-                  <div className="flex justify-center gap-3 animate-slideUp">
-                    <span className="px-4 py-1.5 bg-royal-500/10 text-royal-500 rounded-full text-xs font-bold bengali-font border border-royal-500/20">
-                      #{result.category || 'সাধারণ'}
-                    </span>
-                    <span className="px-4 py-1.5 bg-purple-500/10 text-purple-600 rounded-full text-xs font-bold bengali-font border border-purple-500/20">
+                  <div className="flex justify-center gap-4 animate-slideUp [animation-delay:600ms]">
+                    <div className="px-6 py-2 bg-royal-500/10 text-royal-500 rounded-2xl text-[10px] md:text-xs font-black bengali-font border border-royal-500/20 uppercase tracking-widest">
+                      {result.category || 'অজানালোক'}
+                    </div>
+                    <div className="px-6 py-2 bg-amber-500/10 text-amber-500 rounded-2xl text-[10px] md:text-xs font-black bengali-font border border-amber-500/20 uppercase tracking-widest">
                       {questionCount} প্রশ্ন
-                    </span>
+                    </div>
                   </div>
                 )}
 
                 {stage >= 9 && (
-                  <div className="space-y-4 pt-6 animate-fadeIn">
+                  <div className="space-y-6 pt-10 animate-fadeIn [animation-delay:800ms]">
                     {isMultiplayer ? (
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        <button onClick={() => onResponse(true)} className="flex-1 py-5 bg-green-500 text-white rounded-2xl font-bold text-xl shadow-lg active:scale-95 transition-all bengali-font">হ্যাঁ!</button>
-                        <button onClick={() => onResponse(false)} className="flex-1 py-5 bg-red-500 text-white rounded-2xl font-bold text-xl shadow-lg active:scale-95 transition-all bengali-font">না...</button>
+                      <div className="grid grid-cols-2 gap-5">
+                        <button onClick={() => onResponse(true)} className="py-6 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-[2rem] font-black text-2xl shadow-xl active:scale-95 transition-all bengali-font hover:scale-[1.02]">হ্যাঁ!</button>
+                        <button onClick={() => onResponse(false)} className="py-6 bg-gradient-to-br from-red-500 to-red-600 text-white rounded-[2rem] font-black text-2xl shadow-xl active:scale-95 transition-all bengali-font hover:scale-[1.02]">না...</button>
                       </div>
                     ) : (
-                      <div className="flex flex-col gap-4">
-                        <button onClick={onRestart} className="w-full py-5 bg-royal-500 text-white rounded-[2.5rem] font-black text-xl flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all bengali-font group">
-                           আবার খেলি! <RotateCcw className="w-6 h-6 group-hover:rotate-180 transition-transform duration-500" />
+                      <div className="flex flex-col gap-6">
+                        <button onClick={onRestart} className="w-full py-8 bg-gradient-to-r from-royal-500 to-purple-600 text-white rounded-[2.5rem] font-black text-2xl flex items-center justify-center gap-4 shadow-2xl shadow-royal-500/30 active:scale-95 transition-all bengali-font group overflow-hidden relative">
+                           <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                           <RotateCcw className="w-7 h-7 group-hover:rotate-180 transition-transform duration-700" />
+                           আবার খেলি!
                         </button>
                         
-                        <div className="grid grid-cols-2 gap-4">
-                          <button onClick={shareWhatsApp} className="py-4 bg-[#25D366] text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
-                             <MessageCircle className="w-5 h-5 fill-current" /> WhatsApp
+                        <div className="grid grid-cols-2 gap-5">
+                          <button onClick={shareWhatsApp} className="py-5 bg-[#25D366] text-white rounded-[2rem] font-black text-sm md:text-base flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all hover:brightness-110">
+                             <MessageCircle className="w-6 h-6 fill-current" /> WhatsApp
                           </button>
-                          <button onClick={shareFacebook} className="py-4 bg-[#1877F2] text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
-                             <Facebook className="w-5 h-5 fill-current" /> Facebook
+                          <button onClick={shareFacebook} className="py-5 bg-[#1877F2] text-white rounded-[2rem] font-black text-sm md:text-base flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all hover:brightness-110">
+                             <Facebook className="w-6 h-6 fill-current" /> Facebook
                           </button>
                         </div>
 
@@ -200,7 +202,7 @@ function ResultScreen({
                             setStage(-1);
                             updateLastGame({ won: false });
                           }} 
-                          className="w-full py-4 text-xs font-bold opacity-30 hover:opacity-100 transition-opacity bengali-font uppercase tracking-widest"
+                          className="w-full py-4 text-[10px] font-black opacity-20 hover:opacity-100 transition-opacity bengali-font uppercase tracking-[0.5em] mt-2"
                         >
                           ভুল অনুমান? এখানে ক্লিক করুন
                         </button>
@@ -210,20 +212,25 @@ function ResultScreen({
                 )}
               </div>
             ) : (
-              <div className="space-y-8 text-center animate-fadeIn">
-                <div className="w-20 h-20 mx-auto bg-red-500/10 rounded-full flex items-center justify-center text-red-500">
+              <div className="space-y-10 text-center animate-fadeIn py-4">
+                <div className="w-24 h-24 mx-auto bg-red-500/10 rounded-[2rem] flex items-center justify-center text-red-500 shadow-glow-red rotate-6 hover:rotate-0 transition-transform">
                   <Frown className="w-12 h-12" />
                 </div>
-                <h2 className="text-3xl font-black bengali-font">ওহ! আমি কি হারলাম? 😢</h2>
-                <div className="space-y-4">
-                  <p className="text-sm opacity-60 bengali-font">আপনি আপনার মনের চরিত্রটির নাম এখানে বলতে পারেন:</p>
-                  <input 
-                    type="text"
-                    value={userInputCharacter}
-                    onChange={(e) => setUserInputCharacter(e.target.value)}
-                    placeholder="সঠিক চরিত্রের নাম..."
-                    className={`w-full p-5 rounded-2xl border-2 transition-all text-center font-bold bengali-font outline-none ${isDark ? 'bg-black/20 border-white/5 focus:border-royal-500' : 'bg-gray-50 focus:border-royal-500 focus:shadow-inner'}`}
-                  />
+                <div className="space-y-3">
+                  <h2 className="text-4xl font-black bengali-font text-text-primary">ওহ! আমি কি হারলাম? 😢</h2>
+                  <p className="text-xs md:text-sm font-bold opacity-40 bengali-font uppercase tracking-widest">You won this round!</p>
+                </div>
+                <div className="space-y-6">
+                  <div className="relative group">
+                    <input 
+                      type="text"
+                      value={userInputCharacter}
+                      onChange={(e) => setUserInputCharacter(e.target.value)}
+                      placeholder="সঠিক চরিত্রের নাম..."
+                      className={`w-full p-6 rounded-[1.5rem] border-2 transition-all text-center font-black text-xl bengali-font outline-none ${isDark ? 'bg-black/40 border-white/10 focus:border-royal-500 focus:bg-black/60' : 'bg-gray-50 border-gray-100 focus:border-royal-500 focus:bg-white focus:shadow-inner'}`}
+                    />
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-royal-500 scale-x-0 group-focus-within:scale-x-100 transition-transform rounded-full" />
+                  </div>
                   <button 
                     onClick={() => {
                       if (userInputCharacter) {
@@ -231,7 +238,7 @@ function ResultScreen({
                       }
                       onRestart();
                     }} 
-                    className="w-full py-5 bg-royal-500 text-white rounded-2xl font-bold text-lg bengali-font active:scale-95 transition-all shadow-lg"
+                    className="w-full py-6 bg-gradient-to-r from-royal-500 to-purple-600 text-white rounded-[2rem] font-black text-2xl bengali-font active:scale-95 transition-all shadow-2xl shadow-royal-500/20"
                   >
                     আবার খেলুন
                   </button>
@@ -241,6 +248,7 @@ function ResultScreen({
           </div>
         )}
       </div>
+
 
       <style jsx global>{`
         @keyframes confettiFall {

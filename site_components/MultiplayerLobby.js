@@ -130,7 +130,17 @@ export default function MultiplayerLobby({ onStartGame, onBack }) {
 
       <div className="w-full max-w-4xl flex flex-col items-center mb-10 md:mb-20 animate-slideDown px-4">
         <div className="w-full flex justify-start mb-6">
-          <button onClick={onBack} className="p-4 glass rounded-[1.5rem] hover:bg-royal-500/10 transition-all active:scale-95 group shadow-lg">
+          <button 
+            onClick={() => {
+              if (mode) {
+                setMode(null);
+                setError("");
+              } else {
+                onBack();
+              }
+            }} 
+            className="p-4 glass rounded-[1.5rem] hover:bg-royal-500/10 transition-all active:scale-95 group shadow-lg"
+          >
             <ArrowLeft className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
           </button>
         </div>

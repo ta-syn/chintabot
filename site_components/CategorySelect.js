@@ -21,12 +21,15 @@ const CATEGORIES = [
   { id: 'sports', label: 'খেলাধুলা', icon: '⚽', color: 'bg-emerald-500' },
   { id: 'history', label: 'ইতিহাস ও রাজনীতি', icon: '🏛️', color: 'bg-amber-600' },
   { id: 'marvel', label: 'সুপারহিরো', icon: '🦸', color: 'bg-rose-600' },
+  { id: 'places', label: 'বিখ্যাত স্থান', icon: '🌍', color: 'bg-sky-500' },
+  { id: 'global', label: 'বিশ্ব বিখ্যাত ব্যক্তি', icon: '👤', color: 'bg-violet-500' },
+  { id: 'indonesia', label: 'ইন্দোনেশিয়া', icon: '🇮🇩', color: 'bg-red-600' },
 ];
 
 const DIFFICULTIES = [
-  { id: 'easy', label: 'সহজ', icon: '🟢', maxQuestions: 100, hints: 3, color: 'border-green-500', glow: 'shadow-green-500/20' },
-  { id: 'medium', label: 'মাধ্যম', icon: '🟡', maxQuestions: 50, hints: 1, color: 'border-amber-500', glow: 'shadow-amber-500/20' },
-  { id: 'hard', label: 'কঠিন', icon: '🔴', maxQuestions: 30, hints: 0, color: 'border-red-500', glow: 'shadow-red-500/20' },
+  { id: 'easy', label: 'সহজ', icon: '🟢', maxQuestions: 50, hints: 3, color: 'border-green-500', glow: 'shadow-green-500/20' },
+  { id: 'medium', label: 'মাধ্যম', icon: '🟡', maxQuestions: 35, hints: 1, color: 'border-amber-500', glow: 'shadow-amber-500/20' },
+  { id: 'hard', label: 'কঠিন', icon: '🔴', maxQuestions: 20, hints: 0, color: 'border-red-500', glow: 'shadow-red-500/20' },
 ];
 
 export default function CategorySelect({ onSelect, onBack }) {
@@ -48,78 +51,95 @@ export default function CategorySelect({ onSelect, onBack }) {
   };
 
   return (
-    <div className={`min-h-screen w-full flex flex-col p-4 md:p-10 animate-fadeIn transition-colors duration-500 accelerate translate-z-0 ${isDark ? 'bg-deep-800' : 'bg-[#fcf8ff]'}`}>
+    <div className={`min-h-screen w-full flex flex-col p-4 md:p-8 lg:p-12 animate-fadeIn transition-all duration-700 ease-in-out ${isDark ? 'mesh-gradient' : 'mesh-gradient-light'}`}>
       
-      {/* Background Magic Elements */}
-      <div className="stars-container pointer-events-none opacity-20">
-        <div className="nebula" />
+      {/* Dynamic Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-royal-500/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px] animate-pulse [animation-delay:2s]" />
       </div>
 
-      <div className="w-full max-w-6xl mx-auto flex flex-col gap-6 md:gap-10 z-10">
+      <div className="w-full max-w-7xl mx-auto flex flex-col gap-6 md:gap-10 z-10">
         
-        {/* Header Section */}
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between animate-slideDown">
+        {/* Top Navigation */}
+        <div className="flex items-center justify-between animate-slideDown">
           <button 
             onClick={onBack}
-            className="w-fit flex items-center gap-2 px-6 py-3 glass rounded-2xl hover:bg-royal-500/10 transition-all active:scale-95 text-sm md:text-base group"
+            className="group flex items-center gap-3 px-6 py-3 glass glossy rounded-2xl hover:bg-royal-500/10 transition-all active:scale-95 border border-white/10 shadow-xl"
           >
-            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-            <span className="bengali-font font-bold">ফিরে যান</span>
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform text-royal-500" />
+            <span className="bengali-font font-bold text-text-primary">ফিরে যান</span>
           </button>
           
-          <div className="text-left md:text-right hidden sm:block">
-             <h2 className="text-2xl md:text-5xl font-black bengali-font bg-clip-text text-transparent bg-gradient-to-r from-royal-500 to-purple-400 drop-shadow-sm">
-              গেম সেটআপ
+          <div className="hidden sm:flex flex-col items-end">
+             <h2 className="text-4xl md:text-5xl font-black bengali-font bg-clip-text text-transparent bg-gradient-to-r from-royal-400 via-purple-400 to-royal-300 drop-shadow-sm">
+              অভিযান শুরু করুন
             </h2>
+            <span className="text-xs font-bold opacity-40 uppercase tracking-[0.2em] text-royal-500">ChintaBot Premium</span>
           </div>
         </div>
 
-        <div className="sm:hidden text-center mb-2">
-            <h1 className="text-4xl font-black bengali-font bg-clip-text text-transparent bg-gradient-to-r from-royal-500 to-purple-400">
-              গেম সেটআপ
-            </h1>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
           
-          {/* Left Column: Categories */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="flex items-center justify-between px-2">
-              <h3 className="text-sm font-bold uppercase tracking-widest opacity-50 bengali-font flex items-center gap-2">
-                <Target className="w-4 h-4 text-royal-500" /> ক্যাটাগরি বাছুন
-              </h3>
-              <span className="text-[10px] font-bold opacity-30 uppercase bengali-font">৯টি অঞ্চল</span>
+          {/* Left Column: Categories Grid */}
+          <div className="xl:col-span-8 space-y-6">
+            <div className="flex items-center justify-between px-6 py-4 glass rounded-3xl border border-white/5 shadow-2xl backdrop-blur-xl">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-2xl bg-royal-500/20 flex items-center justify-center text-royal-500 shadow-glow-purple">
+                  <Target className="w-6 h-6 animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black bengali-font text-text-primary leading-tight">ক্যাটাগরি বাছুন</h3>
+                  <p className="text-[10px] font-bold opacity-40 uppercase tracking-widest text-royal-400">Select your destination</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 px-4 py-2 bg-royal-500/5 rounded-2xl border border-royal-500/20 shadow-inner">
+                <span className="w-2 h-2 rounded-full bg-royal-500 animate-ping" />
+                <span className="text-xs font-black bengali-font text-royal-500">১১টি বিশ্ব</span>
+              </div>
             </div>
             
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4 max-h-[500px] lg:max-h-none overflow-y-auto lg:overflow-visible pr-2 custom-scrollbar accelerate">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[60vh] xl:max-h-none overflow-y-auto pr-2 custom-scrollbar">
               {CATEGORIES.map((cat, i) => {
                 const active = selectedCategory === cat.id;
                 return (
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
-                    style={{ animationDelay: `${i * 50}ms` }}
+                    style={{ animationDelay: `${i * 30}ms` }}
                     className={`
-                      group relative p-5 md:p-8 rounded-[2.5rem] flex flex-col items-center gap-3 transition-all duration-300 animate-slideUp border-2 accelerate translate-z-0
-                      ${isDark ? 'glass bg-royal-500/[0.03]' : 'bg-white shadow-xl shadow-purple-200/10'}
+                      group relative p-6 rounded-[2.5rem] flex flex-col items-center justify-center gap-4 transition-all duration-500 animate-slideUp border-2 overflow-hidden
+                      ${isDark ? 'glass bg-white/[0.02]' : 'bg-white shadow-xl shadow-royal-900/5'}
                       ${active 
-                        ? 'border-royal-500 shadow-glow-purple scale-[1.05] ring-8 ring-royal-500/10 z-10' 
-                        : 'border-transparent hover:border-royal-500/30 hover:scale-[1.05]'
+                        ? 'border-royal-500 scale-[1.02] bg-royal-500/[0.08] shadow-[0_20px_50px_rgba(139,92,246,0.2)]' 
+                        : 'border-transparent hover:border-royal-500/20 hover:bg-royal-500/[0.02] hover:-translate-y-1'
                       }
                     `}
                   >
-                    <div className={`text-4xl md:text-5xl transform group-hover:rotate-12 group-hover:scale-110 transition-all duration-300`}>
+                    {/* Background Shine */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    
+                    <div className={`
+                      text-5xl mb-1 transform transition-all duration-500
+                      ${active ? 'scale-110 rotate-6 drop-shadow-[0_10px_15px_rgba(0,0,0,0.2)]' : 'group-hover:scale-110 group-hover:-rotate-3'}
+                    `}>
                       {cat.icon}
                     </div>
-                    <span className="font-bold bengali-font tracking-tight text-sm md:text-base lg:text-lg text-center leading-tight">
+                    
+                    <span className={`
+                      font-bold bengali-font text-sm md:text-base text-center leading-tight transition-colors duration-300
+                      ${active ? 'text-royal-400' : 'text-text-primary'}
+                    `}>
                       {cat.label}
                     </span>
-                    
-                    {active && (
-                      <div className="absolute -top-1 -right-1 text-royal-500 animate-bounceIn shadow-lg rounded-full bg-white dark:bg-deep-800">
-                        <CheckCircle2 className="w-6 h-6 fill-current" />
-                      </div>
-                    )}
+
+                    {/* Active Indicator */}
+                    <div className={`
+                      absolute top-4 right-4 w-6 h-6 rounded-full bg-royal-500 flex items-center justify-center transition-all duration-500 shadow-glow-purple
+                      ${active ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}
+                    `}>
+                      <CheckCircle2 className="w-4 h-4 text-white" />
+                    </div>
                   </button>
                 );
               })}
@@ -127,11 +147,19 @@ export default function CategorySelect({ onSelect, onBack }) {
           </div>
 
           {/* Right Column: Difficulty & Action */}
-          <div className="lg:col-span-5 space-y-8 animate-slideRight [animation-delay:400ms]">
-            <div className="space-y-6">
-              <h3 className="text-sm font-bold uppercase tracking-widest opacity-50 px-2 bengali-font flex items-center gap-2">
-                <Zap className="w-4 h-4 text-amber-500" /> চ্যালেঞ্জের মাত্রা
-              </h3>
+          <div className="xl:col-span-4 space-y-8 animate-slideRight [animation-delay:300ms]">
+            <div className="glass glossy p-8 rounded-[3rem] border border-white/5 shadow-2xl backdrop-blur-2xl relative overflow-hidden">
+               <div className="absolute inset-0 bg-gradient-to-br from-royal-500/[0.03] to-transparent pointer-events-none" />
+               
+               <div className="flex items-center gap-4 mb-8">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/20 flex items-center justify-center text-amber-500 shadow-glow-amber">
+                    <Zap className="w-6 h-6 fill-current animate-pulse" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black bengali-font text-text-primary leading-tight">চ্যালেঞ্জ মোড</h3>
+                    <p className="text-[10px] font-bold opacity-40 uppercase tracking-widest text-amber-500">Choose your difficulty</p>
+                  </div>
+               </div>
               
               <div className="flex flex-col gap-4">
                 {DIFFICULTIES.map((d, i) => {
@@ -140,49 +168,48 @@ export default function CategorySelect({ onSelect, onBack }) {
                     <button
                       key={d.id}
                       onClick={() => setSelectedDifficulty(d.id)}
-                      style={{ animationDelay: `${(i + 5) * 50}ms` }}
                       className={`
-                        group relative flex items-center gap-5 p-6 rounded-[2rem] border-2 transition-all duration-300 animate-slideUp accelerate translate-z-0
-                        ${isDark ? 'glass' : 'bg-white shadow-xl shadow-purple-100/30'}
+                        group relative flex items-center gap-4 p-5 rounded-3xl border-2 transition-all duration-500
+                        ${isDark ? 'bg-white/[0.03]' : 'bg-gray-50'}
                         ${active 
-                          ? `${d.color} bg-royal-500/[0.05] ring-8 ring-current/5 shadow-xl ${d.glow} scale-[1.02]` 
-                          : 'border-transparent opacity-60 hover:opacity-100 hover:scale-[1.02] hover:border-royal-500/20'
+                          ? `${d.color} bg-royal-500/[0.05] shadow-lg ${d.glow} scale-[1.02]` 
+                          : 'border-transparent opacity-60 hover:opacity-100'
                         }
                       `}
                     >
-                      <div className={`text-3xl p-4 rounded-2xl ${active ? 'bg-royal-500/10' : 'bg-gray-100 dark:bg-white/5'} transition-all group-hover:rotate-12`}>
+                      <div className={`text-2xl p-3 rounded-xl ${active ? 'bg-royal-500/10' : 'bg-gray-100 dark:bg-white/5'} transition-all`}>
                         {d.icon}
                       </div>
                       <div className="text-left flex-1">
-                        <span className="font-extrabold bengali-font text-xl md:text-2xl block">{d.label}</span>
-                        <div className="flex items-center gap-3 text-xs font-bold opacity-60 uppercase tracking-tighter">
-                          <span className="flex items-center gap-1"><Target className="w-3 h-3" /> {d.maxQuestions} প্রশ্ন</span>
-                          <span className="w-1.5 h-1.5 bg-royal-500/30 rounded-full" />
-                          <span className="flex items-center gap-1"><Sparkles className="w-3 h-3" /> {d.hints} ইঙ্গিত</span>
+                        <span className="font-extrabold bengali-font text-lg block">{d.label}</span>
+                        <div className="flex items-center gap-3 text-[10px] font-bold opacity-60 uppercase tracking-tight">
+                          <span className="flex items-center gap-1"><Target className="w-3 h-3" /> {d.maxQuestions} Q</span>
+                          <span className="w-1 h-1 bg-royal-500/30 rounded-full" />
+                          <span className="flex items-center gap-1"><Sparkles className="w-3 h-3" /> {d.hints} Hints</span>
                         </div>
                       </div>
-                      {active && <CheckCircle2 className={`w-8 h-8 ${isDark ? 'text-white' : 'text-royal-500'} animate-bounceIn`} />}
+                      {active && <div className="w-2 h-8 rounded-full bg-royal-500 animate-slideDown" />}
                     </button>
                   );
                 })}
               </div>
-            </div>
 
-            {/* CTA Button */}
-            <div className="pt-6">
-              <button 
-                onClick={handleContinue}
-                className="w-full py-6 md:py-8 bg-gradient-to-r from-royal-500 to-purple-600 text-white rounded-[2.5rem] font-black text-xl md:text-2xl shadow-2xl shadow-royal-500/40 hover:shadow-glow-purple active:scale-95 transition-all animate-bounceIn [animation-delay:800ms] bengali-font flex items-center justify-center gap-4 group relative overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
-                <span className="relative z-10 flex items-center gap-2">
-                  অভিযান শুরু করুন
-                  <ChevronRight className="w-7 h-7 group-hover:translate-x-2 transition-transform" />
-                </span>
-              </button>
-              <p className="text-center text-xs opacity-40 font-bold mt-6 bengali-font uppercase tracking-widest animate-fadeIn [animation-delay:1200ms]">
-                মজাদার আর জাদুকরী অভিজ্ঞতা শুরু হোক ✨
-              </p>
+              {/* Action Button */}
+              <div className="mt-10">
+                <button 
+                  onClick={handleContinue}
+                  className="w-full py-6 bg-gradient-to-r from-royal-500 to-purple-600 text-white rounded-[2rem] font-black text-xl shadow-[0_20px_40px_rgba(139,92,246,0.3)] hover:shadow-glow-purple hover:scale-[1.02] active:scale-95 transition-all duration-300 bengali-font flex items-center justify-center gap-4 group relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
+                  <span className="relative z-10 flex items-center gap-2">
+                    শুরু করুন
+                    <ChevronRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                  </span>
+                </button>
+                <p className="text-center text-[10px] opacity-30 font-bold mt-6 bengali-font uppercase tracking-[0.3em]">
+                   Let the magic begin ✨
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -190,14 +217,14 @@ export default function CategorySelect({ onSelect, onBack }) {
       </div>
 
       <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { 
-          background: rgba(139, 92, 246, 0.2); 
-          border-radius: 10px; 
+          background: rgba(139, 92, 246, 0.1); 
+          border-radius: 20px; 
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { 
-          background: rgba(139, 92, 246, 0.4); 
+          background: rgba(139, 92, 246, 0.3); 
         }
       `}</style>
     </div>
